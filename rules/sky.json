@@ -31,9 +31,9 @@
     "sky": {
       "spawn": [
         {
-          "url": "cloud2.svg",
+          "url": "water2.svg",
           "count": 1,
-          "size": 1,
+          "size": 0.3,
           "sizeType": "absolute"
         }
       ]
@@ -43,7 +43,7 @@
         {
           "url": "cloud2.svg",
           "count": 1,
-          "size": 1,
+          "size": 0.1,
           "sizeType": "absolute"
         }
       ]

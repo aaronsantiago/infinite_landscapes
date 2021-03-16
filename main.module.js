@@ -62,6 +62,7 @@ function init() {
   };
 
   Loader.loadSVG(cloudUrl);
+  Loader.loadSVG("assets/water2.svg");
 }
 
 function processRule(rule, currentDimensions) {
@@ -84,8 +85,8 @@ function processRule(rule, currentDimensions) {
             spawnedObj.scale.y = relScale * size;
           }
         }
-        spawnedObj.position.x = (currentDimensions.left + (currentDimensions.right - currentDimensions.left))/2 * 100 - 50;
-        spawnedObj.position.y = (currentDimensions.bottom + (currentDimensions.top - currentDimensions.bottom))/2 * 100 - 50;
+        spawnedObj.position.x = (currentDimensions.left + (currentDimensions.right - currentDimensions.left)/2) * 100 - 50;
+        spawnedObj.position.y = (currentDimensions.bottom + (currentDimensions.top - currentDimensions.bottom)/2) * 100 - 50;
         scene.add(spawnedObj);
         console.log("spawning!");
         console.log(spawnedObj.position);

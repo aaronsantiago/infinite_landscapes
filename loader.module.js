@@ -35,9 +35,7 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
 
   const containerGroup = new THREE.Group();
   const group = new THREE.Group();
-  group.scale.multiplyScalar(0.25);
-  group.position.x =  - 70;
-  group.position.y = 70;
+  // group.scale.multiplyScalar(0.25);
   group.scale.y *=  - 1;
 
   for (let i = 0; i < paths.length; i++) {
@@ -103,7 +101,13 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
     }
 
   }
-
+	var bbox = new THREE.Box3().setFromObject(group);
+	let center = new THREE.Vector3();
+	bbox.getCenter(center);
+	console.log("center");
+	console.log(center);
+  group.position.x = -center.x;
+  group.position.y = -center.y;
   containerGroup.add(group);
   // scene.add(containerGroup);
   return containerGroup;
