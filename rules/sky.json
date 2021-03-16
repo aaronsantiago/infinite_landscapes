@@ -31,20 +31,24 @@
     "sky": {
       "spawn": [
         {
-          "url": "water2.svg",
-          "count": 1,
-          "size": 0.3,
-          "sizeType": "absolute"
+          "url": "cloud2.svg",
+          "count": 4,
+          "size": 0.1,
+          "sizeType": "absolute",
+          "xRange": 1,
+          "yRange": 0.7
         }
       ]
     },
     "ground": {
       "spawn": [
         {
-          "url": "cloud2.svg",
-          "count": 1,
-          "size": 0.1,
-          "sizeType": "absolute"
+          "url": "water2.svg",
+          "count": 4,
+          "size": 0.5,
+          "sizeType": "absolute",
+          "xRange": 0,
+          "yRange": 0.5
         }
       ]
     }

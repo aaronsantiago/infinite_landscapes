@@ -85,8 +85,20 @@ function processRule(rule, currentDimensions) {
             spawnedObj.scale.y = relScale * size;
           }
         }
-        spawnedObj.position.x = (currentDimensions.left + (currentDimensions.right - currentDimensions.left)/2) * 100 - 50;
-        spawnedObj.position.y = (currentDimensions.bottom + (currentDimensions.top - currentDimensions.bottom)/2) * 100 - 50;
+        let xRange = 0;
+        let yRange = 0;
+        if ("xRange" in spawn) xRange = spawn["xRange"];
+        if ("yRange" in spawn) yRange = spawn["yRange"];
+        spawnedObj.position.x =
+            (currentDimensions.left +
+                (currentDimensions.right - currentDimensions.left)/2 +
+                (currentDimensions.right - currentDimensions.left) * (Math.random() - .5) * xRange
+            ) * 100 - 50;
+        spawnedObj.position.y =
+            (currentDimensions.bottom +
+                (currentDimensions.top - currentDimensions.bottom)/2 +
+                (currentDimensions.top - currentDimensions.bottom) * (Math.random() - .5) * yRange
+            ) * 100 - 50;
         scene.add(spawnedObj);
         console.log("spawning!");
         console.log(spawnedObj.position);
@@ -156,7 +168,7 @@ function animate() {
 
   requestAnimationFrame(animate);
 
-  if (Loader.isLoaded(cloudUrl) && !loaded) {
+  if (Loader.isLoaded(cloudUrl) && Loader.isLoaded("assets/water2.svg") && !loaded) {
     loaded = true;
     // for (let x = -100; x < 30; x += 1.3) {
     //   let cloud = Loader.createObject(cloudUrl);
