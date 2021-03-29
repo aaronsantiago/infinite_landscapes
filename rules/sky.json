@@ -32,7 +32,7 @@
       "spawn": [
         {
           "url": "cloud2.svg",
-          "count": 4,
+          "count": 2,
           "size": 0.1,
           "sizeType": "absolute",
           "xRange": 1,
@@ -49,6 +49,14 @@
           "sizeType": "absolute",
           "xRange": 0,
           "yRange": 0.5
+        },
+        {
+          "url": "ship.svg",
+          "count": 1,
+          "size": 0.1,
+          "sizeType": "relative",
+          "xRange": 1,
+          "yRange": 1
         }
       ]
     }

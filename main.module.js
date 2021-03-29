@@ -1,5 +1,3 @@
-
-
 import * as THREE from './libs/three.module.js';
 
 import Stats from './libs/stats.module.js';
@@ -63,6 +61,7 @@ function init() {
 
   Loader.loadSVG(cloudUrl);
   Loader.loadSVG("assets/water2.svg");
+  Loader.loadSVG("assets/ship.svg");
 }
 
 function processRule(rule, currentDimensions) {

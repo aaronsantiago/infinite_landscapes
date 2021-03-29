@@ -7,6 +7,7 @@ import {
 from './libs/SVGLoader.js';
 
 let objects = {};
+let palette = {};
 
 function loadSVG(url) {
 
@@ -43,10 +44,13 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
     const path = paths[i];
 
     const fillColor = path.userData.style.fill;
+    if (!(fillColor in palette)) {
+      palette[fillColor] = chroma.random().rgb();
+    }
     if (drawFillShapes && fillColor !== undefined && fillColor !== 'none') {
 
       const material = new THREE.MeshBasicMaterial({
-          color: new THREE.Color().setStyle(fillColor),
+          color: new THREE.Color().setStyle("rgb(" + palette[fillColor] + ")"),
           opacity: path.userData.style.fillOpacity,
           transparent: path.userData.style.fillOpacity < 1,
           side: THREE.DoubleSide,
