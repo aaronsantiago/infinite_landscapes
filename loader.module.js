@@ -6,8 +6,21 @@ import {
 }
 from './libs/SVGLoader.js';
 
+var mainPrimary = chromatism.convert( { L: 53.23, a: Math.random() * 256 - 128, b: Math.random() * 256 - 128 } ).cssrgb;
+var secondaryPrimary = chromatism.complementary( mainPrimary ).cielab;
+secondaryPrimary.L = 53.23;
+secondaryPrimary = chromatism.convert(secondaryPrimary).cssrgb
+// let colors = chromatism.adjacent( 10, 5, mainPrimary );
 let objects = {};
-let palette = {};
+let palette = {
+  "rgb(237, 28, 36)" : mainPrimary, // main primary
+  "rgb(255, 242, 0)" : chromatism.shade(30, mainPrimary).cssrgb, // main light
+  "rgb(236, 0, 140)" : chromatism.shade(-10, mainPrimary).cssrgb, // main dark
+  "rgb(0, 166, 81)" : secondaryPrimary, // secondary primary
+  "rgb(46, 49, 146)" : chromatism.shade(-10, secondaryPrimary).cssrgb, // secondary dark
+  "rgb(0, 174, 239)" : chromatism.shade(30, secondaryPrimary).cssrgb, // secondary light
+  "rgb(255, 255, 255)" : "rgb(255, 255, 255)",
+};
 
 function loadSVG(url) {
 
@@ -45,12 +58,13 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
 
     const fillColor = path.userData.style.fill;
     if (!(fillColor in palette)) {
-      palette[fillColor] = chroma.random().rgb();
+      console.log(fillColor);
+      // palette[fillColor] = "rgb(" + chroma.random().rgb() + ")";
     }
     if (drawFillShapes && fillColor !== undefined && fillColor !== 'none') {
 
       const material = new THREE.MeshBasicMaterial({
-          color: new THREE.Color().setStyle("rgb(" + palette[fillColor] + ")"),
+          color: new THREE.Color().setStyle(palette[fillColor]),
           opacity: path.userData.style.fillOpacity,
           transparent: path.userData.style.fillOpacity < 1,
           side: THREE.DoubleSide,
