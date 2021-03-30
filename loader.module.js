@@ -6,7 +6,15 @@ import {
 }
 from './libs/SVGLoader.js';
 
-var mainPrimary = chromatism.convert( { L: 53.23, a: Math.random() * 256 - 128, b: Math.random() * 256 - 128 } ).cssrgb;
+// radius determines saturation amount
+// angle determines hue
+let radius = Math.random() * 50 + 50;
+let angle = Math.random() * Math.PI * 2;
+var mainPrimary = chromatism.convert( {
+    L: 53.23,
+    a: Math.cos(angle) * radius,
+    b: Math.sin(angle) * radius
+  } ).cssrgb;
 var secondaryPrimary = chromatism.complementary( mainPrimary ).cielab;
 secondaryPrimary.L = 53.23;
 secondaryPrimary = chromatism.convert(secondaryPrimary).cssrgb
