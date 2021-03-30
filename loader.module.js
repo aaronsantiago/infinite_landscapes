@@ -10,12 +10,24 @@ from './libs/SVGLoader.js';
 // angle determines hue
 let radius = Math.random() * 50 + 50;
 let angle = Math.random() * Math.PI * 2;
-var mainPrimary = chromatism.convert( {
-    L: 53.23,
+let brightness = Math.random() * 30 + 35;
+
+let oppositeSegments = 4;
+let oppositeSpreadAngle = Math.PI/4;
+let mainPrimary = chromatism.convert( {
+    L: brightness,
     a: Math.cos(angle) * radius,
     b: Math.sin(angle) * radius
   } ).cssrgb;
-var secondaryPrimary = chromatism.complementary( mainPrimary ).cielab;
+let allColors = [mainPrimary]; 
+for (let i = 0; i < oppositeSegments; i++) {
+  allColors.push(chromatism.convert({
+    L: brightness,
+    a: Math.cos(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle )* radius,
+    b: Math.sin(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle )* radius
+  }).cssrgb);
+}
+let secondaryPrimary = chromatism.complementary( mainPrimary ).cielab;
 secondaryPrimary.L = 53.23;
 secondaryPrimary = chromatism.convert(secondaryPrimary).cssrgb
 // let colors = chromatism.adjacent( 10, 5, mainPrimary );
@@ -29,6 +41,7 @@ let palette = {
   "rgb(0, 174, 239)" : chromatism.shade(30, secondaryPrimary).cssrgb, // secondary light
   "rgb(255, 255, 255)" : "rgb(255, 255, 255)",
 };
+let currentColor = 0;
 
 function loadSVG(url) {
 
@@ -61,6 +74,17 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
   group.scale.y *=  - 1;
 
   for (let i = 0; i < paths.length; i++) {
+
+    // BEGIN JANK CODE ****************************************
+    palette = {
+      "rgb(237, 28, 36)" : allColors[currentColor],
+      "rgb(255, 242, 0)" : chromatism.shade(30, allColors[currentColor]).cssrgb, // main light
+      "rgb(236, 0, 140)" : chromatism.shade(-10, allColors[currentColor]).cssrgb, // main dark
+      "rgb(0, 166, 81)" : allColors[currentColor], // secondary primary
+      "rgb(46, 49, 146)" : chromatism.shade(-10, allColors[currentColor]).cssrgb, // secondary dark
+      "rgb(0, 174, 239)" : chromatism.shade(30, allColors[currentColor]).cssrgb, // secondary light
+      "rgb(255, 255, 255)" : "rgb(255, 255, 255)",
+    };
 
     const path = paths[i];
 
@@ -127,6 +151,11 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
     }
 
   }
+
+  // extra jank
+  currentColor++;
+  if (currentColor >= allColors.length) currentColor = 0;
+
 	var bbox = new THREE.Box3().setFromObject(group);
 	let center = new THREE.Vector3();
 	bbox.getCenter(center);
@@ -145,5 +174,5 @@ let index = {
 	isLoaded: isLoaded
 };
 
-export { loadSVG, createObject, isLoaded };
+export { loadSVG, createObject, isLoaded, mainPrimary };
 export default index;

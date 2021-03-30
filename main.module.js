@@ -27,7 +27,8 @@ function init() {
   //
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x323232);
+  scene.background = new THREE.Color(
+    chromatism.saturation(-50, chromatism.shade(-20, Loader.mainPrimary).cssrgb).cssrgb);
 
   //
 
