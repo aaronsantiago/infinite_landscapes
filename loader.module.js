@@ -12,8 +12,8 @@ let radius = Math.random() * 50 + 50;
 let angle = Math.random() * Math.PI * 2;
 let brightness = Math.random() * 30 + 35;
 
-let oppositeSegments = 4;
-let oppositeSpreadAngle = Math.PI/4;
+let oppositeSegments = 6;
+let oppositeSpreadAngle = Math.PI/ (1 + Math.random()*3);
 let mainPrimary = chromatism.convert( {
     L: brightness,
     a: Math.cos(angle) * radius,
@@ -80,9 +80,9 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
       "rgb(237, 28, 36)" : allColors[currentColor],
       "rgb(255, 242, 0)" : chromatism.shade(30, allColors[currentColor]).cssrgb, // main light
       "rgb(236, 0, 140)" : chromatism.shade(-10, allColors[currentColor]).cssrgb, // main dark
-      "rgb(0, 166, 81)" : allColors[currentColor], // secondary primary
-      "rgb(46, 49, 146)" : chromatism.shade(-10, allColors[currentColor]).cssrgb, // secondary dark
-      "rgb(0, 174, 239)" : chromatism.shade(30, allColors[currentColor]).cssrgb, // secondary light
+      "rgb(0, 166, 81)" : allColors[(currentColor + 1) % allColors.length], // secondary primary
+      "rgb(46, 49, 146)" : chromatism.shade(-10, allColors[(currentColor + 1) % allColors.length]).cssrgb, // secondary dark
+      "rgb(0, 174, 239)" : chromatism.shade(30, allColors[(currentColor + 1) % allColors.length]).cssrgb, // secondary light
       "rgb(255, 255, 255)" : "rgb(255, 255, 255)",
     };
 
