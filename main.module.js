@@ -6,7 +6,7 @@ import {
   GUI
 }
 from './libs/dat.gui.module.js';
-import { OrbitControls } from './libs/OrbitControls.js';
+// import { OrbitControls } from './libs/OrbitControls.js';
 
 import * as Loader from './loader.module.js';
 
@@ -16,6 +16,7 @@ let renderer, stats, scene, camera, gui, guiData;
 let cloudUrl = 'assets/cloud2.svg';
 let loaded = false;
 let rules = {};
+let water = null;
 
 init();
 animate();
@@ -43,7 +44,7 @@ function init() {
   //           .1,
   //           5000);
   camera.position.set(0, 20, 200);
-  camera.rotation.set(10, 0, 0);
+  // camera.rotation.set(10, 0, 0);
 
   //
 
@@ -69,12 +70,12 @@ function init() {
   Loader.loadSVG("assets/people.svg");
 
 
-        const controls = new OrbitControls( camera, renderer.domElement );
-        controls.minDistance = 5;
-        controls.maxDistance = 500;
+        // const controls = new OrbitControls( camera, renderer.domElement );
+        // controls.minDistance = 5;
+        // controls.maxDistance = 500;
   const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
 
-  let water = new Water(
+  water = new Water(
     waterGeometry,
     {
       textureWidth: 512,
@@ -86,6 +87,7 @@ function init() {
       } ),
       alpha: 1.0,
       sunDirection: new THREE.Vector3(),
+      flowDirection: new THREE.Vector2( 10, 4 ),
       sunColor: 0xffffff,
       waterColor: 0x001e0f,
       distortionScale: 3.7,
@@ -202,6 +204,8 @@ function onWindowResize() {
 function animate() {
 
   requestAnimationFrame(animate);
+  camera.rotation.y = Math.sin(Date.now()/1000/4) / 10;
+  camera.position.x = Math.sin(Date.now()/1000/4) * 8;
 
   if (Loader.isLoaded(cloudUrl) && Loader.isLoaded("assets/water2.svg") && !loaded) {
     loaded = true;
@@ -240,6 +244,8 @@ function animate() {
 
 function render() {
 
+
+        water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
   renderer.render(scene, camera);
 
 }
