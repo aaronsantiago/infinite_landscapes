@@ -6,9 +6,11 @@ import {
   GUI
 }
 from './libs/dat.gui.module.js';
-// import { OrbitControls } from './libs/OrbitControls.js';
+import { OrbitControls } from './libs/OrbitControls.js';
 
 import * as Loader from './loader.module.js';
+
+import { Water } from './libs/three.water.js';
 
 let renderer, stats, scene, camera, gui, guiData;
 let cloudUrl = 'assets/cloud2.svg';
@@ -32,15 +34,16 @@ function init() {
 
   //
 
-  // camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
-  camera = new THREE.OrthographicCamera(
-            -50 * window.innerWidth / window.innerHeight,
-            50 * window.innerWidth / window.innerHeight,
-            50,
-            -50,
-            .1,
-            5000);
-  camera.position.set(0, 0, 200);
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
+  // camera = new THREE.OrthographicCamera(
+  //           -50 * window.innerWidth / window.innerHeight,
+  //           50 * window.innerWidth / window.innerHeight,
+  //           50,
+  //           -50,
+  //           .1,
+  //           5000);
+  camera.position.set(0, 20, 200);
+  camera.rotation.set(10, 0, 0);
 
   //
 
@@ -63,6 +66,37 @@ function init() {
   Loader.loadSVG(cloudUrl);
   Loader.loadSVG("assets/water2.svg");
   Loader.loadSVG("assets/ship.svg");
+  Loader.loadSVG("assets/people.svg");
+
+
+        const controls = new OrbitControls( camera, renderer.domElement );
+        controls.minDistance = 5;
+        controls.maxDistance = 500;
+  const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
+
+  let water = new Water(
+    waterGeometry,
+    {
+      textureWidth: 512,
+      textureHeight: 512,
+      waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
+
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+      } ),
+      alpha: 1.0,
+      sunDirection: new THREE.Vector3(),
+      sunColor: 0xffffff,
+      waterColor: 0x001e0f,
+      distortionScale: 3.7,
+      fog: scene.fog !== undefined
+    }
+  );
+
+  water.rotation.x = - Math.PI / 2;
+  water.position.y = -35;
+
+  scene.add( water );
 }
 
 function processRule(rule, currentDimensions) {
@@ -93,12 +127,13 @@ function processRule(rule, currentDimensions) {
             (currentDimensions.left +
                 (currentDimensions.right - currentDimensions.left)/2 +
                 (currentDimensions.right - currentDimensions.left) * (Math.random() - .5) * xRange
-            ) * 100 - 50;
+            ) * 200 - 100;
         spawnedObj.position.y =
             (currentDimensions.bottom +
                 (currentDimensions.top - currentDimensions.bottom)/2 +
                 (currentDimensions.top - currentDimensions.bottom) * (Math.random() - .5) * yRange
             ) * 100 - 50;
+        spawnedObj.position.z = Math.random() * -100;
         scene.add(spawnedObj);
         console.log("spawning!");
         console.log(spawnedObj.position);

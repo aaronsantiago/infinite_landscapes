@@ -52,7 +52,7 @@
       "spawn": [
         {
           "url": "water2.svg",
-          "count": 4,
+          "count": 0,
           "size": 0.6,
           "sizeType": "absolute",
           "xRange": 0,
@@ -60,7 +60,7 @@
         },
         {
           "url": "ship.svg",
-          "count": 1,
+          "count": 2,
           "size": 0.1,
           "sizeType": "relative",
           "xRange": 1,

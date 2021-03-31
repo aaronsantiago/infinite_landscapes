@@ -72,6 +72,7 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
   const group = new THREE.Group();
   // group.scale.multiplyScalar(0.25);
   group.scale.y *=  - 1;
+  let z = 0;
 
   for (let i = 0; i < paths.length; i++) {
 
@@ -100,7 +101,7 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
           opacity: path.userData.style.fillOpacity,
           transparent: path.userData.style.fillOpacity < 1,
           side: THREE.DoubleSide,
-          depthWrite: false,
+          depthWrite: true,
           wireframe: false
         });
 
@@ -112,7 +113,8 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
 
         const geometry = new THREE.ShapeGeometry(shape);
         const mesh = new THREE.Mesh(geometry, material);
-
+        mesh.position.z = z;
+        z += .01;
         group.add(mesh);
 
       }
