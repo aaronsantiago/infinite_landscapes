@@ -33,6 +33,14 @@
         {
           "url": "cloud2.svg",
           "count": 2,
+          "size": 0.13,
+          "sizeType": "absolute",
+          "xRange": 1,
+          "yRange": 0.7
+        },
+        {
+          "url": "cloud2.svg",
+          "count": 3,
           "size": 0.1,
           "sizeType": "absolute",
           "xRange": 1,
@@ -45,7 +53,7 @@
         {
           "url": "water2.svg",
           "count": 4,
-          "size": 0.5,
+          "size": 0.6,
           "sizeType": "absolute",
           "xRange": 0,
           "yRange": 0.5
