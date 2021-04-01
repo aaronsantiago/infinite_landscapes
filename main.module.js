@@ -51,11 +51,14 @@ function init() {
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(
-      chromatism.saturation(-50, chromatism.shade(-16, mainPrimary).cssrgb).cssrgb);
+      chromatism.saturation(-50, chromatism.shade(-16 + Math.random() * 32, mainPrimary).cssrgb).cssrgb);
 
+  const near = 10;
+  const far = 700 + Math.random() * 800;
+  scene.fog = new THREE.Fog(scene.background, near, far);
   //
 
-  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
+  camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 1000);
   // camera = new THREE.OrthographicCamera(
   //           -50 * window.innerWidth / window.innerHeight,
   //           50 * window.innerWidth / window.innerHeight,
@@ -63,7 +66,7 @@ function init() {
   //           -50,
   //           .1,
   //           5000);
-  camera.position.set(0, 20, 200);
+  camera.position.set(0, 10, 100);
   // camera.rotation.set(10, 0, 0);
 
   //
@@ -108,7 +111,7 @@ function init() {
     });
 
   water.rotation.x =  - Math.PI / 2;
-  water.position.y = -35;
+  water.position.y = -45;
 
   scene.add(water);
 }
@@ -137,6 +140,7 @@ function processRule(rule, currentDimensions) {
   console.log(rule);
   if ("spawn" in rule) {
     for (let spawn of rule["spawn"]) {
+      if ("probability" in spawn && Math.random() > spawn["probability"]) continue;
       for (let i = 0; i < spawn["count"]; i++) {
 
         let palette = {
@@ -151,7 +155,7 @@ function processRule(rule, currentDimensions) {
         // extra jank
         currentColor++;
         if (currentColor >= allColors.length)
-          currentColor = 0;
+          currentColor = 1;
 
         let spawnedObj = Loader.createObject("assets/" + spawn["url"], palette);
         let size = 1;
@@ -180,7 +184,7 @@ function processRule(rule, currentDimensions) {
           (currentDimensions.bottom +
           (currentDimensions.top - currentDimensions.bottom) / 2 +
           (currentDimensions.top - currentDimensions.bottom) * (Math.random() - .5) * yRange) * 100 - 50;
-        spawnedObj.position.z = Math.random() * -100;
+        spawnedObj.position.z = Math.random() * -900;
         scene.add(spawnedObj);
       }
     }
@@ -193,6 +197,7 @@ function processRule(rule, currentDimensions) {
       "top": 1
     };
     for (let replace of rule["replace"]) {
+      if ("probability" in replace && Math.random() > replace["probability"]) continue;
       let newDimensions = Object.assign({}, currentDimensions);
       function tryReplaceThenReturnIfNumerical(dir) {
         if (dir in replace) {
@@ -230,13 +235,15 @@ function processRule(rule, currentDimensions) {
 
 function onWindowResize() {
 
-  // camera.aspect = window.innerWidth / window.innerHeight;
+// perspective
+  camera.aspect = window.innerWidth / window.innerHeight;
+// ortho
   camera.left = -50 * window.innerWidth / window.innerHeight;
   camera.right = 50 * window.innerWidth / window.innerHeight;
   camera.top = 50;
   camera.bottom = -50;
-  camera.updateProjectionMatrix();
 
+  camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 
 }

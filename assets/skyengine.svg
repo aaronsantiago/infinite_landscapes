@@ -1,0 +1,16 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="714.83828" height="429.10048" viewBox="0 0 714.83828 429.10048">
+  <defs>
+    <linearGradient id="linear-gradient" x1="110.75806" y1="467.39695" x2="825.59634" y2="467.39695" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1"/>
+    </linearGradient>
+  </defs>
+  <path d="M156,384c4.75754-5.94692,19-7,27-1s22,28,34,27,8-13,8-16,10-4,10-4,1,9,18,6,56-59,89-78,86-59,128-58,80,24,80,27,15,18,15,18,3-17,22,3,19,56,19,56,27,53,56,57,28-21,68-6,27,35,62,43,52,19,1,25-49-8-77,0-48,40-48,40-38,90-71,111-84,50-151,38-147-54-159-66-9-19-9-19l-13-22s-15,2-16-1-11-21-14-40,5-56,2-56-19-34-33-16-25,15-25,15,46-26,2-23-52,0-63,11-10-14,14-21,43,5,31-17S152,389,156,384Zm264,6c-27.09828,6.60934-83,7-84,46s-39,101,31,126,121,47,165,5,79-123,28-155S461,380,420,390Z" transform="translate(-110.75806 -250.5336)" style="fill: #fff200;stroke-miterlimit: 10;stroke: url(#linear-gradient)"/>
+  <path d="M310,335c-3.1305,2.68328-17,23,12,47s39,30,54,29,22-12,18-16-44-64-58-67S317,329,310,335Z" transform="translate(-110.75806 -250.5336)" style="fill: #ec008c;stroke: #231f20;stroke-miterlimit: 10"/>
+  <path d="M443,256c4.031-6.91023,31-6,45-1s4,9,1,34,3,99,8,105-34-1-39-1-17-16-16-31,8-56,7-65S436,268,443,256Z" transform="translate(-110.75806 -250.5336)" style="fill: #ec008c;stroke: #231f20;stroke-miterlimit: 10"/>
+  <path d="M545,410s0-24,16-32,39-17,45-14,12,13,12,13-12,2-29,15-27,31-27,31Z" transform="translate(-110.75806 -250.5336)" style="fill: #ec008c;stroke: #231f20;stroke-miterlimit: 10"/>
+  <path d="M563,517s14,31,35,38,55,8,55,8l11-24s5,2-28-9-61-42-61-42Z" transform="translate(-110.75806 -250.5336)" style="fill: #ec008c;stroke: #231f20;stroke-miterlimit: 10"/>
+  <path d="M516,566l27-22s-4-7,10,8,12,43,12,43-11-19-22-22S516,566,516,566Z" transform="translate(-110.75806 -250.5336)" style="fill: #ec008c;stroke: #231f20;stroke-miterlimit: 10"/>
+  <path d="M429,578l43,7s1-5-6,13-9,61-9,61l15,20-59-7s1-13,5-19,17-36,9-52S429,578,429,578Z" transform="translate(-110.75806 -250.5336)" style="fill: #ec008c;stroke: #231f20;stroke-miterlimit: 10"/>
+  <path d="M346,534s-24,7-42,13-46,19-46,19l12,20s22,6,37,0,42-39,42-39Z" transform="translate(-110.75806 -250.5336)" style="fill: #ec008c;stroke: #231f20;stroke-miterlimit: 10"/>
+</svg>

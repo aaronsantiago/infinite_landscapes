@@ -35,8 +35,8 @@ function createObject(url, palette, drawFillShapes = true, drawStrokes = true) {
 
     const fillColor = path.userData.style.fill;
     if (!(fillColor in palette)) {
-      console.log(fillColor + "not found, filling random color");
-      palette[fillColor] = "rgb(" + chroma.random().rgb() + ")";
+      console.log(fillColor + "not found, using color");
+      palette[fillColor] = fillColor;
     }
     if (drawFillShapes && fillColor !== undefined && fillColor !== 'none') {
 
@@ -57,7 +57,7 @@ function createObject(url, palette, drawFillShapes = true, drawStrokes = true) {
         const geometry = new THREE.ShapeGeometry(shape);
         const mesh = new THREE.Mesh(geometry, material);
         mesh.position.z = z;
-        z += .01;
+        z += .3;
         group.add(mesh);
       }
     }
