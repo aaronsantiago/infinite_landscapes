@@ -1,70 +1,25 @@
 
-
 import * as THREE from './libs/three.module.js';
 import {
   SVGLoader
 }
 from './libs/SVGLoader.js';
 
-// radius determines saturation amount
-// angle determines hue
-let radius = Math.random() * 50 + 50;
-let angle = Math.random() * Math.PI * 2;
-let brightness = Math.random() * 30 + 35;
-
-let oppositeSegments = 6;
-let oppositeSpreadAngle = Math.PI/ (1 + Math.random()*3);
-let mainPrimary = chromatism.convert( {
-    L: brightness,
-    a: Math.cos(angle) * radius,
-    b: Math.sin(angle) * radius
-  } ).cssrgb;
-let allColors = [mainPrimary]; 
-for (let i = 0; i < oppositeSegments; i++) {
-  allColors.push(chromatism.convert({
-    L: brightness,
-    a: Math.cos(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle )* radius,
-    b: Math.sin(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle )* radius
-  }).cssrgb);
-}
-let secondaryPrimary = chromatism.complementary( mainPrimary ).cielab;
-secondaryPrimary.L = 53.23;
-secondaryPrimary = chromatism.convert(secondaryPrimary).cssrgb
-// let colors = chromatism.adjacent( 10, 5, mainPrimary );
 let objects = {};
-let palette = {
-  "rgb(237, 28, 36)" : mainPrimary, // main primary
-  "rgb(255, 242, 0)" : chromatism.shade(30, mainPrimary).cssrgb, // main light
-  "rgb(236, 0, 140)" : chromatism.shade(-10, mainPrimary).cssrgb, // main dark
-  "rgb(0, 166, 81)" : secondaryPrimary, // secondary primary
-  "rgb(46, 49, 146)" : chromatism.shade(-10, secondaryPrimary).cssrgb, // secondary dark
-  "rgb(0, 174, 239)" : chromatism.shade(30, secondaryPrimary).cssrgb, // secondary light
-  "rgb(255, 255, 255)" : "rgb(255, 255, 255)",
-};
-let currentColor = 0;
 
 function loadSVG(url) {
-
-  // //
-
-  // scene = new THREE.Scene();
-  // scene.background = new THREE.Color(0xb0b0b0);
-
-  // //
-
   const loader = new SVGLoader();
 
   loader.load(url, function (data) {
     objects[url] = data;
   });
-
 }
 
 function isLoaded(url) {
-	return url in objects;
+  return url in objects;
 }
 
-function createObject(url, drawFillShapes = true, drawStrokes = true) {
+function createObject(url, palette, drawFillShapes = true, drawStrokes = true) {
 
   const paths = objects[url].paths;
 
@@ -76,23 +31,12 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
 
   for (let i = 0; i < paths.length; i++) {
 
-    // BEGIN JANK CODE ****************************************
-    palette = {
-      "rgb(237, 28, 36)" : allColors[currentColor],
-      "rgb(255, 242, 0)" : chromatism.shade(30, allColors[currentColor]).cssrgb, // main light
-      "rgb(236, 0, 140)" : chromatism.shade(-10, allColors[currentColor]).cssrgb, // main dark
-      "rgb(0, 166, 81)" : allColors[(currentColor + 1) % allColors.length], // secondary primary
-      "rgb(46, 49, 146)" : chromatism.shade(-10, allColors[(currentColor + 1) % allColors.length]).cssrgb, // secondary dark
-      "rgb(0, 174, 239)" : chromatism.shade(30, allColors[(currentColor + 1) % allColors.length]).cssrgb, // secondary light
-      "rgb(255, 255, 255)" : "rgb(255, 255, 255)",
-    };
-
     const path = paths[i];
 
     const fillColor = path.userData.style.fill;
     if (!(fillColor in palette)) {
-      console.log(fillColor);
-      // palette[fillColor] = "rgb(" + chroma.random().rgb() + ")";
+      console.log(fillColor + "not found, filling random color");
+      palette[fillColor] = "rgb(" + chroma.random().rgb() + ")";
     }
     if (drawFillShapes && fillColor !== undefined && fillColor !== 'none') {
 
@@ -108,7 +52,6 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
       const shapes = path.toShapes(true);
 
       for (let j = 0; j < shapes.length; j++) {
-
         const shape = shapes[j];
 
         const geometry = new THREE.ShapeGeometry(shape);
@@ -116,9 +59,7 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
         mesh.position.z = z;
         z += .01;
         group.add(mesh);
-
       }
-
     }
 
     const strokeColor = path.userData.style.stroke;
@@ -145,36 +86,31 @@ function createObject(url, drawFillShapes = true, drawStrokes = true) {
           const mesh = new THREE.Mesh(geometry, material);
 
           group.add(mesh);
-
         }
-
       }
-
     }
-
   }
 
-  // extra jank
-  currentColor++;
-  if (currentColor >= allColors.length) currentColor = 0;
-
-	var bbox = new THREE.Box3().setFromObject(group);
-	let center = new THREE.Vector3();
-	bbox.getCenter(center);
-	console.log("center");
-	console.log(center);
+  // Calculate the center of the object and center it
+  var bbox = new THREE.Box3().setFromObject(group);
+  let center = new THREE.Vector3();
+  bbox.getCenter(center);
   group.position.x = -center.x;
   group.position.y = -center.y;
   containerGroup.add(group);
-  // scene.add(containerGroup);
+
   return containerGroup;
 }
 
 let index = {
-	loadSVG: loadSVG,
-	createObject: createObject,
-	isLoaded: isLoaded
+  loadSVG: loadSVG,
+  createObject: createObject,
+  isLoaded: isLoaded
 };
 
-export { loadSVG, createObject, isLoaded, mainPrimary };
+export {
+  loadSVG,
+  createObject,
+  isLoaded
+};
 export default index;
