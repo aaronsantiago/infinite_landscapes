@@ -2,6 +2,8 @@ import * as THREE from './libs/three.module.js';
 import { GUI } from './libs/dat.gui.module.js';
 import * as Loader from './loader.module.js';
 import { Water } from './libs/three.water.js';
+
+import * as yaml from './libs/yaml.module.js';
 // import Stats from './libs/stats.module.js';
 // import { OrbitControls } from './libs/OrbitControls.js';
 
@@ -127,9 +129,19 @@ function loadAll(rules) {
     let rule = rules[ruleKey];
     if ("spawn" in rule) {
       for (let spawn of rule["spawn"]) {
-        let url = "assets/" + spawn.url;
-        Loader.loadSVG(url);
-        loadedUrls.push(url);
+        function loadUrl(url) {
+          url = "assets/" + url;
+          Loader.loadSVG(url);
+          loadedUrls.push(url);
+        }
+        if (typeof(spawn.url) == "object") {
+          for (let spawnUrl of spawn.url) {
+            loadUrl(spawnUrl);
+          }
+        }
+        else {
+          loadUrl(spawn.url);
+        }
       }
     }
   }
@@ -141,6 +153,7 @@ function processRule(rule, currentDimensions) {
   if ("spawn" in rule) {
     for (let spawn of rule["spawn"]) {
       if ("probability" in spawn && Math.random() > spawn["probability"]) continue;
+      console.log(spawn.url);
       for (let i = 0; i < spawn["count"]; i++) {
 
         let palette = {
@@ -157,19 +170,16 @@ function processRule(rule, currentDimensions) {
         if (currentColor >= allColors.length)
           currentColor = 1;
 
+        let url = spawn["url"];
+        if (typeof(url) == "object") {
+          url = url[Math.floor(Math.random() * url.length)];
+        }
+
         let spawnedObj = Loader.createObject("assets/" + spawn["url"], palette);
         let size = 1;
         if ("size" in spawn)
           size = spawn["size"];
-        if ("sizeType" in spawn) {
-          if (spawn["sizeType"] == "absolute") {
-            spawnedObj.scale.multiplyScalar(size);
-          } else if (spawn["sizeType"] == "relative") {
-            let relScale = Math.min((currentDimensions.right - currentDimensions.left), (currentDimensions.top - currentDimensions.bottom));
-            spawnedObj.scale.x = relScale * size;
-            spawnedObj.scale.y = relScale * size;
-          }
-        }
+        spawnedObj.scale.multiplyScalar(size);
         let xRange = 0;
         let yRange = 0;
         if ("xRange" in spawn)
@@ -267,12 +277,12 @@ function animate() {
   if (!jsonLoaded) {
 
     let rawFile = new XMLHttpRequest();
-    rawFile.overrideMimeType("application/json");
-    rawFile.open("GET", "rules/sky.json", true);
+    rawFile.overrideMimeType("application/yaml");
+    rawFile.open("GET", "rules/sky.yaml", true);
     rawFile.onreadystatechange = function () {
       if (rawFile.readyState === 4 && rawFile.status == "200") {
         // initialize
-        parsedRules = JSON.parse(rawFile.responseText);
+        parsedRules = yaml.load(rawFile.responseText);
         rules = parsedRules["rules"];
         loadAll(rules);
         console.log("loaded json");

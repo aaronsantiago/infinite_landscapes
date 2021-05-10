@@ -1,0 +1,147 @@
+---
+initial:
+- id: landscape
+  left: 0
+  right: 1
+  bottom: 0
+  top: 1
+rules:
+  landscape:
+    replace:
+    - id: sky
+      left: 0
+      right: 1
+      bottom: 0.5
+      bottomRange: 0.3
+      top: 1
+    - id: ground
+      left: 0
+      right: 1
+      bottom: 0
+      top: previous_bottom
+  sky:
+    replace:
+    - id: cloudZone
+      left: 0
+      right: 0.3
+      bottom: 0.5
+      bottomRange: 0.3
+      top: 1
+    - id: cloudZone
+      left: 0.7
+      right: 1
+      bottom: 0.5
+      bottomRange: 0.3
+      top: 1
+    - id: moonZone
+      left: 0
+      right: 1
+      bottom: 0.8
+      bottomRange: 0.1
+      top: 1
+    spawn:
+    - url: ufo.svg
+      count: 1
+      probability: 0.1
+      size: 0.03
+      xRange: 1
+      yRange: 0.7
+    - url: ufo.svg
+      count: 1
+      probability: 0.1
+      size: 0.03
+      xRange: 0.4
+      yRange: 0.7
+    - url: ufo.svg
+      count: 1
+      probability: 0.1
+      size: 0.03
+      xRange: 0.3
+      yRange: 0.7
+  moonZone:
+    spawn:
+    - url: moon.svg
+      count: 1
+      size: 0.53
+      probability: 0.9
+      xRange: 1
+      yRange: 0.7
+  cloudZone:
+    spawn:
+    - url: cloud.svg
+      count: 3
+      probability: 0.9
+      size: 0.13
+      xRange: 1
+      yRange: 0.7
+    - url: cloud.svg
+      count: 3
+      probability: 0.9
+      size: 0.1
+      xRange: 1
+      yRange: 0.7
+  ground:
+    replace:
+    - id: surface
+      left: 0
+      right: 1
+      bottom: 0.3
+      top: 0.32
+    spawn:
+    - url: water2.svg
+      count: 0
+      size: 0.6
+      xRange: 0
+      yRange: 0.5
+    - url: castle.svg
+      count: 1
+      size: 0.1
+      probability: 0.2
+      xRange: 1
+      yRange: 0.2
+    - url: ship.svg
+      count: 1
+      size: 0.1
+      probability: 0.4
+      xRange: 1
+      yRange: 1
+    - url: ship.svg
+      count: 1
+      size: 0.1
+      probability: 0.4
+      xRange: 1
+      yRange: 1
+    - url: sailboat.svg
+      count: 2
+      size: 0.4
+      probability: 0.4
+      xRange: 1
+      yRange: 1
+    - url: lighthouse.svg
+      count: 1
+      size: 0.4
+      probability: 0.4
+      xRange: 1
+      yRange: 0.2
+  surface:
+    spawn:
+    - url:
+      - person1.svg
+      - person2.svg
+      - person3.svg
+      - person4.svg
+      - person5.svg
+      - person6.svg
+      - person7.svg
+      - person8.svg
+      - person9.svg
+      - person10.svg
+      - person11.svg
+      - person12.svg
+      - person13.svg
+      - person14.svg
+      count: 45
+      size: 0.03
+      xRange: 1
+      probability: 0.1
+      yRange: 0.5
