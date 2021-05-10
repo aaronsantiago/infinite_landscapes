@@ -182,10 +182,13 @@ function processRule(rule, currentDimensions) {
         spawnedObj.scale.multiplyScalar(size);
         let xRange = 0;
         let yRange = 0;
+        let zRange = 0;
         if ("xRange" in spawn)
           xRange = spawn["xRange"];
         if ("yRange" in spawn)
           yRange = spawn["yRange"];
+        if ("zRange" in spawn)
+          zRange = spawn["zRange"];
         spawnedObj.position.x =
           (currentDimensions.left +
           (currentDimensions.right - currentDimensions.left) / 2 +
@@ -194,7 +197,10 @@ function processRule(rule, currentDimensions) {
           (currentDimensions.bottom +
           (currentDimensions.top - currentDimensions.bottom) / 2 +
           (currentDimensions.top - currentDimensions.bottom) * (Math.random() - .5) * yRange) * 100 - 50;
-        spawnedObj.position.z = Math.random() * -900;
+        spawnedObj.position.z =
+          (currentDimensions.back +
+          (currentDimensions.front - currentDimensions.back) / 2 +
+          (currentDimensions.front - currentDimensions.back) * (Math.random() - .5) * zRange) * 500 - 650;
         scene.add(spawnedObj);
       }
     }
@@ -204,7 +210,9 @@ function processRule(rule, currentDimensions) {
       "left": 0,
       "right": 1,
       "bottom": 0,
-      "top": 1
+      "top": 1,
+      "front": 1,
+      "back": 0
     };
     for (let replace of rule["replace"]) {
       if ("probability" in replace && Math.random() > replace["probability"]) continue;
@@ -236,6 +244,14 @@ function processRule(rule, currentDimensions) {
       if (tryReplaceThenReturnIfNumerical("top")) {
         newDimensions.top =
           (currentDimensions.top - currentDimensions.bottom) * replace.top + currentDimensions.bottom;
+      }
+      if (tryReplaceThenReturnIfNumerical("back")) {
+        newDimensions.back =
+          (currentDimensions.front - currentDimensions.back) * replace.back + currentDimensions.back;
+      }
+      if (tryReplaceThenReturnIfNumerical("front")) {
+        newDimensions.front =
+          (currentDimensions.front - currentDimensions.back) * replace.front + currentDimensions.back;
       }
       processRule(rules[replace.id], newDimensions);
       lastDimensions = newDimensions;
@@ -270,7 +286,9 @@ function animate() {
       "left": 0,
       "right": 1,
       "bottom": 0,
-      "top": 1
+      "top": 1,
+      "front": 1,
+      "back": 0
     };
     processRule(rules[parsedRules["initial"][0]["id"]], current);
   }

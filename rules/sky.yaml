@@ -18,24 +18,32 @@ rules:
       left: 0
       right: 1
       bottom: 0
+      front: 1
+      back: .7
       top: previous_bottom
   sky:
     replace:
     - id: cloudZone
       left: 0
       right: 0.3
+      front: .5
+      back: 0
       bottom: 0.5
       bottomRange: 0.3
       top: 1
     - id: cloudZone
       left: 0.7
       right: 1
+      front: .5
+      back: 0
       bottom: 0.5
       bottomRange: 0.3
       top: 1
     - id: moonZone
       left: 0
       right: 1
+      front: .2
+      back: 0
       bottom: 0.8
       bottomRange: 0.1
       top: 1
@@ -46,18 +54,21 @@ rules:
       size: 0.03
       xRange: 1
       yRange: 0.7
+      zRange: 1
     - url: ufo.svg
       count: 1
       probability: 0.1
       size: 0.03
       xRange: 0.4
       yRange: 0.7
+      zRange: 1
     - url: ufo.svg
       count: 1
       probability: 0.1
       size: 0.03
       xRange: 0.3
       yRange: 0.7
+      zRange: 1
   moonZone:
     spawn:
     - url: moon.svg
@@ -66,6 +77,7 @@ rules:
       probability: 0.9
       xRange: 1
       yRange: 0.7
+      zRange: 1
   cloudZone:
     spawn:
     - url: cloud.svg
@@ -74,12 +86,14 @@ rules:
       size: 0.13
       xRange: 1
       yRange: 0.7
+      zRange: 1
     - url: cloud.svg
       count: 3
       probability: 0.9
       size: 0.1
       xRange: 1
       yRange: 0.7
+      zRange: 1
   ground:
     replace:
     - id: surface
@@ -93,36 +107,42 @@ rules:
       size: 0.6
       xRange: 0
       yRange: 0.5
+      zRange: 1
     - url: castle.svg
       count: 1
       size: 0.1
       probability: 0.2
       xRange: 1
       yRange: 0.2
+      zRange: 1
     - url: ship.svg
       count: 1
       size: 0.1
       probability: 0.4
       xRange: 1
       yRange: 1
+      zRange: 1
     - url: ship.svg
       count: 1
       size: 0.1
       probability: 0.4
       xRange: 1
       yRange: 1
+      zRange: 1
     - url: sailboat.svg
       count: 2
       size: 0.4
       probability: 0.4
       xRange: 1
       yRange: 1
+      zRange: 1
     - url: lighthouse.svg
       count: 1
       size: 0.4
       probability: 0.4
       xRange: 1
       yRange: 0.2
+      zRange: 1
   surface:
     spawn:
     - url:
@@ -145,3 +165,4 @@ rules:
       xRange: 1
       probability: 0.1
       yRange: 0.5
+      zRange: 1
