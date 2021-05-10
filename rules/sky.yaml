@@ -115,6 +115,7 @@ rules:
       xRange: 1
       yRange: 0.2
       zRange: 1
+      yOffset: 25
     - url: ship.svg
       count: 1
       size: 0.1
@@ -134,8 +135,9 @@ rules:
       size: 0.4
       probability: 0.4
       xRange: 1
-      yRange: 1
+      yRange: 0
       zRange: 1
+      yOffset: 60
     - url: lighthouse.svg
       count: 1
       size: 0.4

@@ -201,6 +201,13 @@ function processRule(rule, currentDimensions) {
           (currentDimensions.back +
           (currentDimensions.front - currentDimensions.back) / 2 +
           (currentDimensions.front - currentDimensions.back) * (Math.random() - .5) * zRange) * 500 - 650;
+
+          if ("xOffset" in spawn) 
+            spawnedObj.position.y += spawn["xOffset"];
+          if ("yOffset" in spawn) 
+            spawnedObj.position.y += spawn["yOffset"];
+          if ("zOffset" in spawn) 
+            spawnedObj.position.y += spawn["zOffset"];
         scene.add(spawnedObj);
       }
     }
