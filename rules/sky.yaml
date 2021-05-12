@@ -101,6 +101,8 @@ rules:
       right: 1
       bottom: 0.3
       top: 0.32
+      front: 1
+      back: 0
     spawn:
     - url: water2.svg
       count: 0
@@ -165,6 +167,7 @@ rules:
       count: 45
       size: 0.03
       xRange: 1
+      yOffset: -5
       probability: 0.1
       yRange: 0.5
       zRange: 1

@@ -20,7 +20,6 @@ function isLoaded(url) {
 }
 
 function createObject(url, palette, drawFillShapes = true, drawStrokes = true) {
-
   const paths = objects[url].paths;
 
   const containerGroup = new THREE.Group();

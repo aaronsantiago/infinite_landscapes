@@ -152,9 +152,8 @@ function processRule(rule, currentDimensions) {
   console.log(rule);
   if ("spawn" in rule) {
     for (let spawn of rule["spawn"]) {
-      if ("probability" in spawn && Math.random() > spawn["probability"]) continue;
-      console.log(spawn.url);
       for (let i = 0; i < spawn["count"]; i++) {
+        if ("probability" in spawn && Math.random() > spawn["probability"]) continue;
 
         let palette = {
           "rgb(237, 28, 36)": allColors[currentColor],
@@ -175,7 +174,7 @@ function processRule(rule, currentDimensions) {
           url = url[Math.floor(Math.random() * url.length)];
         }
 
-        let spawnedObj = Loader.createObject("assets/" + spawn["url"], palette);
+        let spawnedObj = Loader.createObject("assets/" + url, palette);
         let size = 1;
         if ("size" in spawn)
           size = spawn["size"];
@@ -201,13 +200,12 @@ function processRule(rule, currentDimensions) {
           (currentDimensions.back +
           (currentDimensions.front - currentDimensions.back) / 2 +
           (currentDimensions.front - currentDimensions.back) * (Math.random() - .5) * zRange) * 500 - 650;
-
-          if ("xOffset" in spawn) 
-            spawnedObj.position.y += spawn["xOffset"];
-          if ("yOffset" in spawn) 
-            spawnedObj.position.y += spawn["yOffset"];
-          if ("zOffset" in spawn) 
-            spawnedObj.position.y += spawn["zOffset"];
+        if ("xOffset" in spawn) 
+          spawnedObj.position.y += spawn["xOffset"];
+        if ("yOffset" in spawn) 
+          spawnedObj.position.y += spawn["yOffset"];
+        if ("zOffset" in spawn) 
+          spawnedObj.position.y += spawn["zOffset"];
         scene.add(spawnedObj);
       }
     }
@@ -305,7 +303,7 @@ function animate() {
     rawFile.overrideMimeType("application/yaml");
     rawFile.open("GET", "rules/sky.yaml", true);
     rawFile.onreadystatechange = function () {
-      if (rawFile.readyState === 4 && rawFile.status == "200") {
+      if (!jsonLoaded && rawFile.readyState === 4 && rawFile.status == "200") {
         // initialize
         parsedRules = yaml.load(rawFile.responseText);
         rules = parsedRules["rules"];
