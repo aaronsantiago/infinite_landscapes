@@ -1,0 +1,116 @@
+---
+initial:
+- id: traditional
+  left: 0
+  right: 1
+  bottom: 0
+  top: 1
+rules:
+  traditional:
+    replace:
+    - id: cloudZone
+      front: .5
+      bottom: .5
+    - id: cloudZone
+      right: .3
+      back: .2
+      bottom: .8
+    - id: cloudZone
+      left: .7
+      back: .5
+      bottom: .8
+    - id: ground
+      left: 0
+      right: 1
+      bottom: 0
+      front: 1
+      back: .3
+  cloudZone:
+    spawn:
+    - url: cloud.svg
+      count: 3
+      probability: 0.9
+      size: 0.13
+      xRange: 1
+      yRange: 0.7
+      zRange: 1
+    - url: cloud.svg
+      count: 3
+      probability: 0.9
+      size: 0.1
+      xRange: 1
+      yRange: 0.7
+      zRange: 1
+  ground:
+    replace:
+    - id: surface
+      left: 0
+      right: 1
+      bottom: 0.3
+      top: 0.32
+      front: 1
+      back: 0
+    spawn:
+    - url: castle.svg
+      count: 1
+      size: 0.05
+      probability: 0.2
+      xRange: 1
+      yRange: 0.2
+      zRange: 1
+      yOffset: 25
+    - url: ship.svg
+      count: 1
+      size: 0.05
+      probability: 0.4
+      xRange: 1
+      yRange: 1
+      zRange: 1
+    - url: ship.svg
+      count: 1
+      size: 0.05
+      probability: 0.4
+      xRange: 1
+      yRange: .3
+      zRange: 1
+      yOffset: -15
+    - url: sailboat.svg
+      count: 2
+      size: 0.1
+      probability: 0.4
+      xRange: 1
+      yRange: 0
+      zRange: 1
+      yOffset: -24
+    - url: lighthouse.svg
+      count: 1
+      size: 0.07
+      probability: 0.4
+      xRange: 1
+      yRange: 0.2
+      zRange: 1
+      yOffset: -10
+  surface:
+    spawn:
+    - url:
+      - person1.svg
+      - person2.svg
+      - person3.svg
+      - person4.svg
+      - person5.svg
+      - person6.svg
+      - person7.svg
+      - person8.svg
+      - person9.svg
+      - person10.svg
+      - person11.svg
+      - person12.svg
+      - person13.svg
+      - person14.svg
+      count: 15
+      size: 0.03
+      xRange: 1
+      yOffset: -20
+      probability: 0.1
+      yRange: 0.1
+      zRange: 1

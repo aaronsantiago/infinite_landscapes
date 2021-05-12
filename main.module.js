@@ -301,7 +301,7 @@ function animate() {
 
     let rawFile = new XMLHttpRequest();
     rawFile.overrideMimeType("application/yaml");
-    rawFile.open("GET", "rules/sky.yaml", true);
+    rawFile.open("GET", "rules/traditional.yaml", true);
     rawFile.onreadystatechange = function () {
       if (!jsonLoaded && rawFile.readyState === 4 && rawFile.status == "200") {
         // initialize
