@@ -19,7 +19,7 @@ rules:
       left: .7
       back: .5
       bottom: .8
-    - id: ground
+    - id: feature
       left: 0
       right: 1
       bottom: 0
@@ -41,39 +41,33 @@ rules:
       xRange: 1
       yRange: 0.7
       zRange: 1
-  ground:
+  feature:
     replace:
-    - id: surface
-      left: 0
-      right: 1
-      bottom: 0.3
-      top: 0.32
-      front: 1
-      back: 0
+    - id: castle
+    - id: ship
+    - id: sailboats
+  castle:
     spawn:
     - url: castle.svg
       count: 1
-      size: 0.05
+      size: 0.09
       probability: 0.2
       xRange: 1
-      yRange: 0.2
+      yRange: 0.13
       zRange: 1
-      yOffset: 25
+      yOffset: -5
+  ship:
+    spawn:
     - url: ship.svg
       count: 1
       size: 0.05
       probability: 0.4
       xRange: 1
-      yRange: 1
+      yRange: .15
       zRange: 1
-    - url: ship.svg
-      count: 1
-      size: 0.05
-      probability: 0.4
-      xRange: 1
-      yRange: .3
-      zRange: 1
-      yOffset: -15
+      yOffset: -25
+  sailboats:
+    spawn:
     - url: sailboat.svg
       count: 2
       size: 0.1
@@ -82,14 +76,6 @@ rules:
       yRange: 0
       zRange: 1
       yOffset: -24
-    - url: lighthouse.svg
-      count: 1
-      size: 0.07
-      probability: 0.4
-      xRange: 1
-      yRange: 0.2
-      zRange: 1
-      yOffset: -10
   surface:
     spawn:
     - url:

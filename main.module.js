@@ -57,7 +57,8 @@ function init() {
 
   const near = 10;
   const far = 700 + Math.random() * 800;
-  scene.fog = new THREE.Fog(scene.background, near, far);
+  // scene.fog = new THREE.Fog(scene.background, near, far);
+  scene.fog = new THREE.Fog(allColors[1], near, far);
   //
 
   camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 1000);
@@ -156,13 +157,13 @@ function processRule(rule, currentDimensions) {
         if ("probability" in spawn && Math.random() > spawn["probability"]) continue;
 
         let palette = {
-          "rgb(237, 28, 36)": allColors[currentColor],
-          "rgb(255, 242, 0)": chromatism.shade(30, allColors[currentColor]).cssrgb, // main light
-          "rgb(236, 0, 140)": chromatism.shade(-10, allColors[currentColor]).cssrgb, // main dark
-          "rgb(0, 166, 81)": allColors[(currentColor + 1) % allColors.length], // secondary primary
-          "rgb(46, 49, 146)": chromatism.shade(-10, allColors[(currentColor + 1) % allColors.length]).cssrgb, // secondary dark
-          "rgb(0, 174, 239)": chromatism.shade(30, allColors[(currentColor + 1) % allColors.length]).cssrgb, // secondary light
-          "rgb(255, 255, 255)": "rgb(255, 255, 255)",
+          "rgb(237,28,36)": allColors[currentColor],
+          "rgb(255,242,0)": chromatism.shade(30, allColors[currentColor]).cssrgb, // main light
+          "rgb(236,0,140)": chromatism.shade(-10, allColors[currentColor]).cssrgb, // main dark
+          "rgb(0,166,81)": allColors[(currentColor + 1) % allColors.length], // secondary primary
+          "rgb(46,49,146)": chromatism.shade(-10, allColors[(currentColor + 1) % allColors.length]).cssrgb, // secondary dark
+          "rgb(0,174,239)": chromatism.shade(30, allColors[(currentColor + 1) % allColors.length]).cssrgb, // secondary light
+          "rgb(255,255,255)": "rgb(255, 255, 255)",
         };
         // extra jank
         currentColor++;
