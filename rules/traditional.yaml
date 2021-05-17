@@ -9,6 +9,7 @@ presets:
   cloud:
     url: cloud.svg
     size: 0.13
+    waviness: 3
   castle:
     url: castle.svg
     size: 0.09
@@ -20,6 +21,7 @@ presets:
   sailboat:
     url: sailboat.svg
     size: 0.1
+    waviness: 1
     yOffset: -24
 rules:
   traditional:

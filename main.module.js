@@ -182,13 +182,12 @@ function processRule(rule, currentDimensions) {
         currentColor++;
         if (currentColor >= allColors.length)
           currentColor = 1;
-        // checkAndApplyPreset(spawn);
         let url = spawn["url"];
         if (typeof(url) == "object") {
           url = url[Math.floor(Math.random() * url.length)];
         }
 
-        let spawnedObj = Loader.createObject("assets/" + url, palette);
+        let spawnedObj = Loader.createObject("assets/" + url, palette, spawn["waviness"] || 0);
         let size = 1;
         if ("size" in spawn)
           size = spawn["size"];

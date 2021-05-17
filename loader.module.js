@@ -1,6 +1,6 @@
 
 import * as THREE from './libs/three.module.js';
-import { fogParsVert, fogVert, fogParsFrag, fogFrag, wavyVert } from './FogReplace.module.js';
+import { wavyParsVert, fogParsVert, fogVert, fogParsFrag, fogFrag, wavyVert } from './FogReplace.module.js';
 import
 {
   SVGLoader
@@ -25,7 +25,7 @@ function isLoaded(url)
   return url in objects;
 }
 
-function createObject(url, palette, drawFillShapes = true, drawStrokes = false)
+function createObject(url, palette, waviness = 0, drawFillShapes = true, drawStrokes = false)
 {
   const paths = objects[url].paths;
 
@@ -70,6 +70,7 @@ function createObject(url, palette, drawFillShapes = true, drawStrokes = false)
         );
       material.onBeforeCompile = shader =>
       {
+        shader.vertexShader = shader.vertexShader.replace(`#include <common>`, wavyParsVert);
         shader.vertexShader = shader.vertexShader.replace(`#include <fog_pars_vertex>`, fogParsVert);
         shader.vertexShader = shader.vertexShader.replace(`#include <fog_vertex>`, fogVert);
         shader.vertexShader = shader.vertexShader.replace(`#include <begin_vertex>`, wavyVert);
@@ -83,7 +84,8 @@ function createObject(url, palette, drawFillShapes = true, drawStrokes = false)
           fogNoiseFreq: { value: .02 },
           fogNoiseSpeed: { value: 1 },
           fogNoiseImpact: { value: 1 },
-          time: { value: 0 }
+          waviness: {value: waviness},
+          time: { value: 0 },
         };
 
         shader.uniforms = THREE.UniformsUtils.merge([shader.uniforms, uniforms]);
