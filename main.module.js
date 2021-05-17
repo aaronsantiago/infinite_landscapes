@@ -12,6 +12,7 @@ let loaded = false;
 let jsonLoaded = false;
 let rules = {};
 let parsedRules = {};
+let presets = {};
 let water = null;
 let loadedUrls = [];
 
@@ -130,6 +131,7 @@ function loadAll(rules) {
     let rule = rules[ruleKey];
     if ("spawn" in rule) {
       for (let spawn of rule["spawn"]) {
+        checkAndApplyPreset(spawn);
         function loadUrl(url) {
           url = "assets/" + url;
           Loader.loadSVG(url);
@@ -145,6 +147,17 @@ function loadAll(rules) {
         }
       }
     }
+  }
+}
+
+function checkAndApplyPreset(obj) {
+  let preset = obj["presetId"];
+  console.log(preset);
+  if (preset != null && presets[preset] != null) {
+    let final = Object.assign({}, presets[preset]);
+    Object.assign(final, obj);
+    Object.assign(obj, final);
+    console.log(obj);
   }
 }
 
@@ -169,7 +182,7 @@ function processRule(rule, currentDimensions) {
         currentColor++;
         if (currentColor >= allColors.length)
           currentColor = 1;
-
+        // checkAndApplyPreset(spawn);
         let url = spawn["url"];
         if (typeof(url) == "object") {
           url = url[Math.floor(Math.random() * url.length)];
@@ -308,7 +321,8 @@ function animate() {
         // initialize
         parsedRules = yaml.load(rawFile.responseText);
         rules = parsedRules["rules"];
-        loadAll(rules);
+        presets = parsedRules["presets"] || {};
+        loadAll(rules,presets);
         console.log("loaded json");
         jsonLoaded = true;
       }

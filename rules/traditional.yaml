@@ -5,6 +5,22 @@ initial:
   right: 1
   bottom: 0
   top: 1
+presets:
+  cloud:
+    url: cloud.svg
+    size: 0.13
+  castle:
+    url: castle.svg
+    size: 0.09
+    yOffset: -5
+  ship:
+    url: ship.svg
+    size: 0.05
+    yOffset: -25
+  sailboat:
+    url: sailboat.svg
+    size: 0.1
+    yOffset: -24
 rules:
   traditional:
     replace:
@@ -27,17 +43,15 @@ rules:
       back: .3
   cloudZone:
     spawn:
-    - url: cloud.svg
+    - presetId: cloud
       count: 3
       probability: 0.9
-      size: 0.13
       xRange: 1
       yRange: 0.7
       zRange: 1
-    - url: cloud.svg
+    - presetId: cloud
       count: 3
       probability: 0.9
-      size: 0.1
       xRange: 1
       yRange: 0.7
       zRange: 1
@@ -48,34 +62,28 @@ rules:
     - id: sailboats
   castle:
     spawn:
-    - url: castle.svg
+    - presetId: castle
       count: 1
-      size: 0.09
       probability: 0.2
       xRange: 1
       yRange: 0.13
       zRange: 1
-      yOffset: -5
   ship:
     spawn:
-    - url: ship.svg
+    - presetId: ship
       count: 1
-      size: 0.05
       probability: 0.4
       xRange: 1
       yRange: .15
       zRange: 1
-      yOffset: -25
   sailboats:
     spawn:
-    - url: sailboat.svg
+    - presetId: sailboat
       count: 2
-      size: 0.1
       probability: 0.4
       xRange: 1
       yRange: 0
       zRange: 1
-      yOffset: -24
   surface:
     spawn:
     - url:
