@@ -58,7 +58,7 @@ rules:
       yRange: 0.7
       zRange: 1
   feature:
-    replace:
+    replaceOne:
     - id: castle
     - id: ship
     - id: sailboats
@@ -66,7 +66,6 @@ rules:
     spawn:
     - presetId: castle
       count: 1
-      probability: 0.2
       xRange: 1
       yRange: 0.13
       zRange: 1
@@ -74,7 +73,6 @@ rules:
     spawn:
     - presetId: ship
       count: 1
-      probability: 0.4
       xRange: 1
       yRange: .15
       zRange: 1
@@ -82,7 +80,6 @@ rules:
     spawn:
     - presetId: sailboat
       count: 2
-      probability: 0.4
       xRange: 1
       yRange: 0
       zRange: 1

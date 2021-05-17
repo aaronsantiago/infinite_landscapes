@@ -223,6 +223,15 @@ function processRule(rule, currentDimensions) {
       }
     }
   }
+  if ("replaceOne" in rule) {
+    let chosen = rule["replaceOne"][Math.floor(Math.random() * rule["replaceOne"].length)];
+    if ("replace" in rule) {
+      rule["replace"].push(chosen);
+    }
+    else {
+      rule["replace"] = [chosen];
+    }
+  }
   if ("replace" in rule) {
     let lastDimensions = {
       "left": 0,
