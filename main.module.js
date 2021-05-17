@@ -58,8 +58,8 @@ function init() {
 
   const near = 10;
   const far = 700 + Math.random() * 800;
-  // scene.fog = new THREE.Fog(scene.background, near, far);
-  scene.fog = new THREE.Fog(allColors[1], near, far);
+  scene.fog = new THREE.Fog(scene.background, near, far);
+  // scene.fog = new THREE.Fog(allColors[1], near, far);
   //
 
   camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 1000);
@@ -304,8 +304,8 @@ function onWindowResize() {
 function animate() {
 
   requestAnimationFrame(animate);
-  camera.rotation.y = Math.sin(Date.now() / 1000 / 4) / 10;
-  camera.position.x = Math.sin(Date.now() / 1000 / 4) * 8;
+  // camera.rotation.y = Math.sin(Date.now() / 1000 / 4) / 10;
+  // camera.position.x = Math.sin(Date.now() / 1000 / 4) * 8;
 
   if (allLoaded() && !loaded && jsonLoaded) {
     loaded = true;
@@ -343,7 +343,7 @@ function animate() {
 
 function render() {
 
-  water.material.uniforms['time'].value += 1.0 / 60.0;
+  water.material.uniforms['time'].value += .2 / 60.0;
   renderer.render(scene, camera);
 
 }

@@ -85,7 +85,7 @@ function createObject(url, palette, waviness = 0, drawFillShapes = true, drawStr
           fogNoiseSpeed: { value: 1 },
           fogNoiseImpact: { value: 1 },
           waviness: {value: waviness},
-          time: { value: 0 },
+          time: { value: Math.random() * Math.PI*2 },
         };
 
         shader.uniforms = THREE.UniformsUtils.merge([shader.uniforms, uniforms]);

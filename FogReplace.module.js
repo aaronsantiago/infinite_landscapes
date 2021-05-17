@@ -7,7 +7,7 @@ uniform float waviness;
 
 const wavyVert = `
 vec3 transformed = vec3( position );
-transformed = transformed + vec3(0, 0, sin((modelMatrix * vec4(position,1) + time).x/5.0 * waviness)*30.0);
+transformed = transformed + vec3(0, 0, sin((modelMatrix * vec4(position,1) + time).x/5.0)*30.0 * waviness);
 `;
 
 const fogParsVert = `
@@ -28,7 +28,7 @@ const fogVert = `
 
 const fogFrag = `
 #ifdef USE_FOG
-  vec3 windDir = vec3(0.0, 0.0, time);
+  vec3 windDir = vec3(0.0, 0.0, 0.0);
   vec3 scrollingPos = vFogWorldPosition.xyz + fogNoiseSpeed * windDir;  
   float noise = cnoise(fogNoiseFreq * scrollingPos.xyz);
   float vFogDepth = (1.0 - fogNoiseImpact * noise) * fogDepth;
