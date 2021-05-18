@@ -41,8 +41,6 @@ function createObject(url, palette, waviness = 0, drawFillShapes = true, drawStr
     const path = paths[i];
 
     let fillColor = path.userData.style.fill;
-    console.log(fillColor);
-    console.log(new THREE.Color().setStyle(fillColor));
     let alpha = parseFloat(fillColor.split(',')[3]) || 1;
     let rgb = new THREE.Color().setStyle(fillColor);
     rgb.r *= 255;
@@ -77,10 +75,9 @@ function createObject(url, palette, waviness = 0, drawFillShapes = true, drawStr
         shader.fragmentShader = shader.fragmentShader.replace(`#include <fog_pars_fragment>`, fogParsFrag);
         shader.fragmentShader = shader.fragmentShader.replace(`#include <fog_fragment>`, fogFrag);
 
-
         const uniforms = {
           fogNearColor: { value: new THREE.Color("blue") },
-          fogCustomColor: { value: new THREE.Color().setStyle(palette[fillColor + 1]) },
+          fogCustomColor: { value: new THREE.Color().setStyle(chromatism.shade(20, palette[fillColor]).cssrgb) },
           fogNoiseFreq: { value: .02 },
           fogNoiseSpeed: { value: 1 },
           fogNoiseImpact: { value: 1 },

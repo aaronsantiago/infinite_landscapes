@@ -169,19 +169,22 @@ function processRule(rule, currentDimensions) {
       for (let i = 0; i < spawn["count"]; i++) {
         if ("probability" in spawn && Math.random() > spawn["probability"]) continue;
 
+        let hueShiftedPrimary = chromatism.saturation(currentDimensions.saturation, allColors[currentColor + currentDimensions.hueShift]).cssrgb;
+        let hueShiftedSecondary = chromatism.saturation(currentDimensions.saturation, allColors[(currentColor + currentDimensions.hueShift + 1)% allColors.length]).cssrgb;
         let palette = {
-          "rgb(237,28,36)": allColors[currentColor],
-          "rgb(255,242,0)": chromatism.shade(30, allColors[currentColor]).cssrgb, // main light
-          "rgb(236,0,140)": chromatism.shade(-10, allColors[currentColor]).cssrgb, // main dark
-          "rgb(0,166,81)": allColors[(currentColor + 1) % allColors.length], // secondary primary
-          "rgb(46,49,146)": chromatism.shade(-10, allColors[(currentColor + 1) % allColors.length]).cssrgb, // secondary dark
-          "rgb(0,174,239)": chromatism.shade(30, allColors[(currentColor + 1) % allColors.length]).cssrgb, // secondary light
+          "rgb(237,28,36)": hueShiftedPrimary,
+          "rgb(255,242,0)": chromatism.shade(20, hueShiftedPrimary).cssrgb, // main light
+          "rgb(236,0,140)": chromatism.shade(-10, hueShiftedPrimary).cssrgb, // main dark
+          "rgb(0,166,81)": hueShiftedSecondary, // secondary primary
+          "rgb(46,49,146)": chromatism.shade(-10, hueShiftedSecondary).cssrgb, // secondary dark
+          "rgb(0,174,239)": chromatism.shade(20, hueShiftedSecondary).cssrgb, // secondary light
           "rgb(255,255,255)": "rgb(255, 255, 255)",
         };
-        // extra jank
-        currentColor++;
-        if (currentColor >= allColors.length)
-          currentColor = 1;
+        console.log(currentDimensions.hueShift);
+        // // extra jank
+        // currentColor++;
+        // if (currentColor >= allColors.length)
+        //   currentColor = 1;
         let url = spawn["url"];
         if (typeof(url) == "object") {
           url = url[Math.floor(Math.random() * url.length)];
@@ -239,7 +242,9 @@ function processRule(rule, currentDimensions) {
       "bottom": 0,
       "top": 1,
       "front": 1,
-      "back": 0
+      "back": 0,
+      "hueShift": 0, 
+      "saturation": 0, 
     };
     for (let replace of rule["replace"]) {
       if ("probability" in replace && Math.random() > replace["probability"]) continue;
@@ -280,6 +285,12 @@ function processRule(rule, currentDimensions) {
         newDimensions.front =
           (currentDimensions.front - currentDimensions.back) * replace.front + currentDimensions.back;
       }
+      if (tryReplaceThenReturnIfNumerical("hueShift")) {
+        newDimensions.hueShift += replace.hueShift;
+      }
+      if (tryReplaceThenReturnIfNumerical("saturation")) {
+        newDimensions.saturation += replace.saturation;
+      }
       processRule(rules[replace.id], newDimensions);
       lastDimensions = newDimensions;
     }
@@ -315,7 +326,9 @@ function animate() {
       "bottom": 0,
       "top": 1,
       "front": 1,
-      "back": 0
+      "back": 0,
+      "saturation": 0, 
+      "hueShift": 0,
     };
     processRule(rules[parsedRules["initial"][0]["id"]], current);
   }
