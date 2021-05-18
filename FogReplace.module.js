@@ -33,12 +33,16 @@ const fogFrag = `
   float noise = cnoise(fogNoiseFreq * scrollingPos.xyz);
   float vFogDepth = (1.0 - fogNoiseImpact * noise) * fogDepth;
   #ifdef FOG_EXP2
-  float fogFactor = 1.0 - exp( - fogDensity * fogDensity * vFogDepth * vFogDepth );
+  float customColorFactor = 1.0 - exp( - fogDensity * fogDensity * vFogDepth * vFogDepth );
+  float fogFactor = 1.0 - exp( - fogDensity * fogDensity * fogDepth * fogDepth );
   #else
-  float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
+  float customColorFactor = smoothstep( fogNear, fogFar, vFogDepth );
+  float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
   #endif
-  // gl_FragColor.rgb = mix( gl_FragColor.rgb, mix(fogNearColor, fogColor, fogFactor), fogFactor );
-  gl_FragColor.rgb = mix( gl_FragColor.rgb, fogCustomColor, fogFactor );
+  // vec3 foggedCustomColor = mix( fogCustomColor.rgb, fogColor, fogFactor );
+
+  gl_FragColor.rgb = mix( gl_FragColor.rgb, fogCustomColor, customColorFactor );
+  gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
 #endif
 
 `;
@@ -46,7 +50,7 @@ const fogFrag = `
 const fogParsFrag = `
 #ifdef USE_FOG
   ${noise}
-	// uniform vec3 fogColor;
+	uniform vec3 fogColor;
   uniform vec3 fogNearColor;
   uniform vec3 fogCustomColor;
 	varying float fogDepth;

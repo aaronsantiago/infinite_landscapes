@@ -27,11 +27,11 @@ rules:
   traditional:
     replace:
     - id: cloudZone
-      saturation: -65
+      saturation: -62
       front: .5
       bottom: .5
     - id: cloudZone
-      saturation: -70
+      saturation: -65
       front: .2
       back: -1
       bottom: .5
@@ -74,6 +74,13 @@ rules:
     - id: ship
     - id: sailboats
   castle:
+    replace:
+    - id: surface
+      hueShift: 2
+    - id: surface
+      hueShift: 4
+    - id: surface
+      hueShift: 6
     spawn:
     - presetId: castle
       count: 1
@@ -81,6 +88,13 @@ rules:
       yRange: 0.13
       zRange: 1
   ship:
+    replace:
+    - id: surface
+      hueShift: 2
+    - id: surface
+      hueShift: 4
+    - id: surface
+      hueShift: 6
     spawn:
     - presetId: ship
       count: 1
@@ -88,6 +102,13 @@ rules:
       yRange: .15
       zRange: 1
   sailboats:
+    replace:
+    - id: surface
+      hueShift: 2
+    - id: surface
+      hueShift: 4
+    - id: surface
+      hueShift: 6
     spawn:
     - presetId: sailboat
       count: 2
@@ -114,7 +135,7 @@ rules:
       count: 15
       size: 0.03
       xRange: 1
-      yOffset: -20
+      yOffset: -45
       probability: 0.1
-      yRange: 0.1
+      yRange: 0.01
       zRange: 1
