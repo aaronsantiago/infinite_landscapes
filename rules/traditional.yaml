@@ -8,7 +8,8 @@ initial:
 presets:
   cloud:
     url: cloud.svg
-    size: 0.13
+    size: 0.09
+    sizeRange: .1
     waviness: .5
   castle:
     url: castle.svg
@@ -27,22 +28,30 @@ rules:
   traditional:
     replace:
     - id: cloudZone
-      saturation: -62
+      hueShiftChance: .3
+      saturation: -42
+      brightness: 20
       front: .5
       bottom: .5
     - id: cloudZone
-      saturation: -65
+      hueShiftChance: .3
+      saturation: -45
+      brightness: 20
       front: .2
       back: -1
       bottom: .5
     - id: cloudZone
-      saturation: -60
+      hueShiftChance: .3
+      saturation: -40
+      brightness: 20
       right: .3
       back: .5
       front: 1.5
       bottom: .8
     - id: cloudZone
-      saturation: -60
+      hueShiftChance: .3
+      saturation: -40
+      brightness: 20
       front: 1.5
       left: .7
       back: .5

@@ -21,7 +21,7 @@ let loadedUrls = [];
 // angle determines hue
 let radius = Math.random() * 50 + 50;
 let angle = Math.random() * Math.PI * 2;
-let brightness = Math.random() * 30 + 35;
+let brightness = Math.random() * 35 + 45;
 
 let oppositeSegments = 6;
 let oppositeSpreadAngle = Math.PI / (1 + Math.random() * 3);
@@ -54,7 +54,7 @@ function init() {
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(
-      chromatism.saturation(-50, chromatism.shade(-16 + Math.random() * 32, mainPrimary).cssrgb).cssrgb);
+      chromatism.saturation(-50, chromatism.shade(-16 + Math.random() * 42, mainPrimary).cssrgb).cssrgb);
 
   const near = 10;
   const far = 700 + Math.random() * 800;
@@ -150,6 +150,20 @@ function loadAll(rules) {
   }
 }
 
+function newDimensions() {
+  return {
+      "left": 0,
+      "right": 1,
+      "bottom": 0,
+      "top": 1,
+      "front": 1,
+      "back": 0,
+      "hueShift": 0, 
+      "saturation": 0, 
+      "brightness": 0, 
+    };
+}
+
 function checkAndApplyPreset(obj) {
   let preset = obj["presetId"];
   console.log(preset);
@@ -169,8 +183,14 @@ function processRule(rule, currentDimensions) {
       for (let i = 0; i < spawn["count"]; i++) {
         if ("probability" in spawn && Math.random() > spawn["probability"]) continue;
 
-        let hueShiftedPrimary = chromatism.saturation(currentDimensions.saturation, allColors[currentColor + currentDimensions.hueShift]).cssrgb;
+try {
+        let hueShiftedPrimary = chromatism.saturation(currentDimensions.saturation, allColors[(currentColor + currentDimensions.hueShift)% allColors.length]).cssrgb;
         let hueShiftedSecondary = chromatism.saturation(currentDimensions.saturation, allColors[(currentColor + currentDimensions.hueShift + 1)% allColors.length]).cssrgb;
+
+
+        hueShiftedPrimary = chromatism.shade(currentDimensions.brightness, hueShiftedPrimary).cssrgb;
+        hueShiftedSecondary = chromatism.shade(currentDimensions.brightness, hueShiftedSecondary).cssrgb;
+        console.log(currentDimensions.brightness);
         let palette = {
           "rgb(237,28,36)": hueShiftedPrimary,
           "rgb(255,242,0)": chromatism.shade(20, hueShiftedPrimary).cssrgb, // main light
@@ -180,7 +200,6 @@ function processRule(rule, currentDimensions) {
           "rgb(0,174,239)": chromatism.shade(20, hueShiftedSecondary).cssrgb, // secondary light
           "rgb(255,255,255)": "rgb(255, 255, 255)",
         };
-        console.log(currentDimensions.hueShift);
         // // extra jank
         // currentColor++;
         // if (currentColor >= allColors.length)
@@ -194,6 +213,8 @@ function processRule(rule, currentDimensions) {
         let size = 1;
         if ("size" in spawn)
           size = spawn["size"];
+        if ("sizeRange" in spawn)
+          size += Math.random() * spawn["sizeRange"];
         spawnedObj.scale.multiplyScalar(size);
         let xRange = 0;
         let yRange = 0;
@@ -224,6 +245,10 @@ function processRule(rule, currentDimensions) {
           spawnedObj.position.y += spawn["zOffset"];
         scene.add(spawnedObj);
       }
+      catch {
+        console.log("wat");
+      }
+      }
     }
   }
   if ("replaceOne" in rule) {
@@ -236,16 +261,7 @@ function processRule(rule, currentDimensions) {
     }
   }
   if ("replace" in rule) {
-    let lastDimensions = {
-      "left": 0,
-      "right": 1,
-      "bottom": 0,
-      "top": 1,
-      "front": 1,
-      "back": 0,
-      "hueShift": 0, 
-      "saturation": 0, 
-    };
+    let lastDimensions = newDimensions();
     for (let replace of rule["replace"]) {
       if ("probability" in replace && Math.random() > replace["probability"]) continue;
       let newDimensions = Object.assign({}, currentDimensions);
@@ -288,8 +304,14 @@ function processRule(rule, currentDimensions) {
       if (tryReplaceThenReturnIfNumerical("hueShift")) {
         newDimensions.hueShift += replace.hueShift;
       }
+      if (tryReplaceThenReturnIfNumerical("hueShiftChance")) {
+        newDimensions.hueShift += Math.random() > replace.hueShiftChance ? 1 : 0;
+      }
       if (tryReplaceThenReturnIfNumerical("saturation")) {
         newDimensions.saturation += replace.saturation;
+      }
+      if (tryReplaceThenReturnIfNumerical("brightness")) {
+        newDimensions.brightness += replace.brightness;
       }
       processRule(rules[replace.id], newDimensions);
       lastDimensions = newDimensions;
@@ -320,16 +342,7 @@ function animate() {
 
   if (allLoaded() && !loaded && jsonLoaded) {
     loaded = true;
-    let current = {
-      "left": 0,
-      "right": 1,
-      "bottom": 0,
-      "top": 1,
-      "front": 1,
-      "back": 0,
-      "saturation": 0, 
-      "hueShift": 0,
-    };
+    let current = newDimensions();
     processRule(rules[parsedRules["initial"][0]["id"]], current);
   }
   if (!jsonLoaded) {
