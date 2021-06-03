@@ -11,6 +11,19 @@ presets:
     size: 0.09
     sizeRange: .1
     waviness: .5
+  castleBig:
+    url: castle.svg
+    size: 0.14
+    yOffset: 10
+  shipBig:
+    url: ship.svg
+    size: 0.11
+    yOffset: -10
+  sailboatBig:
+    url: sailboat.svg
+    size: 0.3
+    waviness: .2
+    yOffset: -15
   castle:
     url: castle.svg
     size: 0.09
@@ -33,16 +46,18 @@ rules:
       saturation: -42
       brightness: 20
       front: .5
-      bottom: .5
+      bottom: 1
+      top: 1.8
     - id: cloudZone3
       hueShiftChance: .3
       saturation: -45
       brightness: 20
       front: .2
       back: -1
-      bottom: .5
+      bottom: 1
       left: -1.5
       right: 2.5
+      top: 1.8
     - id: cloudZone2
       hueShiftChance: .3
       saturation: -40
@@ -51,7 +66,8 @@ rules:
       left: -1
       back: .5
       front: 1.5
-      bottom: .8
+      bottom: 1
+      top: 1.8
     - id: cloudZone2
       hueShiftChance: .3
       saturation: -40
@@ -60,7 +76,8 @@ rules:
       left: .7
       right: 2
       back: .5
-      bottom: .8
+      bottom: 1
+      top: 1.8
     - id: ufoZone
       count: 2
       probability: .15
@@ -75,7 +92,7 @@ rules:
       right: 1
       bottom: 0
       front: 1
-      back: .3
+      back: -.2
     - id: background
       left: -2
       right: 3
@@ -167,9 +184,7 @@ rules:
     spawn:
     - presetId: sailboat
       count: 25
-      sizeRange: .1
       xRange: 1
-      yRange: .01
       zRange: 1
   backgroundPeople:
     spawn:
@@ -189,7 +204,7 @@ rules:
     - id: surface
       hueShift: 6
     spawn:
-    - presetId: castle
+    - presetId: castleBig
       count: 1
       xRange: 1
       yRange: 0.13
@@ -203,7 +218,7 @@ rules:
     - id: surface
       hueShift: 6
     spawn:
-    - presetId: ship
+    - presetId: shipBig
       count: 1
       xRange: 1
       yRange: .15
