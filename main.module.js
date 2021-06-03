@@ -109,8 +109,8 @@ function init() {
       sunDirection: new THREE.Vector3(),
       flowDirection: new THREE.Vector2(10, 4),
       sunColor: 0xffffff,
-      waterColor: 0x001e0f,
-      distortionScale: 3.7,
+      waterColor: 0xa0beaf,
+      distortionScale: 9.7,
       fog: scene.fog !== undefined
     });
 
