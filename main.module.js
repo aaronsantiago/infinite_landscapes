@@ -57,12 +57,12 @@ function init() {
       chromatism.saturation(-50, chromatism.shade(-16 + Math.random() * 42, mainPrimary).cssrgb).cssrgb);
 
   const near = 10;
-  const far = 700 + Math.random() * 800;
+  const far = 1200;
   scene.fog = new THREE.Fog(scene.background, near, far);
   // scene.fog = new THREE.Fog(allColors[1], near, far);
   //
 
-  camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 1000);
+  camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, .1, 10000);
   // camera = new THREE.OrthographicCamera(
   //           -50 * window.innerWidth / window.innerHeight,
   //           50 * window.innerWidth / window.innerHeight,
@@ -70,7 +70,7 @@ function init() {
   //           -50,
   //           .1,
   //           5000);
-  camera.position.set(0, 10, 100);
+  camera.position.set(0, 10 + Math.random() * -35, 80);
   // camera.rotation.set(10, 0, 0);
 
   //
@@ -129,6 +129,7 @@ function allLoaded() {
 function loadAll(rules) {
   for (let ruleKey in rules) {
     let rule = rules[ruleKey];
+    if (rule == null) continue;
     if ("spawn" in rule) {
       for (let spawn of rule["spawn"]) {
         checkAndApplyPreset(spawn);
@@ -178,6 +179,7 @@ function checkAndApplyPreset(obj) {
 function processRule(rule, currentDimensions) {
   console.log("processing rule:");
   console.log(rule);
+  if (rule == null) return;
   if ("spawn" in rule) {
     for (let spawn of rule["spawn"]) {
       for (let i = 0; i < spawn["count"]; i++) {
@@ -263,58 +265,72 @@ try {
   if ("replace" in rule) {
     let lastDimensions = newDimensions();
     for (let replace of rule["replace"]) {
-      if ("probability" in replace && Math.random() > replace["probability"]) continue;
-      let newDimensions = Object.assign({}, currentDimensions);
-      function tryReplaceThenReturnIfNumerical(dir) {
-        if (dir in replace) {
-          if ((typeof replace[dir] === 'string' || replace[dir]instanceof String)) {
-            if (replace[dir].startsWith("previous_")) {
-              newDimensions[dir] = lastDimensions[replace[dir].split("_")[1]];
+      for (let i = 0; i < (replace["count"] || 1); i++) {
+        if ("probability" in replace && Math.random() > replace["probability"]) continue;
+        let newDimensions = Object.assign({}, currentDimensions);
+        function tryReplaceThenReturnIfNumerical(dir) {
+          if (dir in replace) {
+            if ((typeof replace[dir] === 'string' || replace[dir]instanceof String)) {
+              if (replace[dir].startsWith("previous_")) {
+                newDimensions[dir] = lastDimensions[replace[dir].split("_")[1]];
+              }
+              return false;
             }
-            return false;
+            return true;
           }
-          return true;
+          return false;
         }
-        return false;
+        if (tryReplaceThenReturnIfNumerical("left")) {
+          newDimensions.left =
+            (currentDimensions.right - currentDimensions.left) * replace.left + currentDimensions.left;
+        }
+        if (tryReplaceThenReturnIfNumerical("right")) {
+          newDimensions.right =
+            (currentDimensions.right - currentDimensions.left) * replace.right + currentDimensions.left;
+        }
+        if (tryReplaceThenReturnIfNumerical("randWidth")) {
+          newDimensions.left += Math.random() * (newDimensions.right - newDimensions.left) * (1 - replace.randWidth);
+          newDimensions.right = newDimensions.left + (newDimensions.right - newDimensions.left) * replace.randWidth;
+        }
+        if (tryReplaceThenReturnIfNumerical("bottom")) {
+          newDimensions.bottom =
+            (currentDimensions.top - currentDimensions.bottom) * replace.bottom + currentDimensions.bottom;
+        }
+        if (tryReplaceThenReturnIfNumerical("top")) {
+          newDimensions.top =
+            (currentDimensions.top - currentDimensions.bottom) * replace.top + currentDimensions.bottom;
+        }
+        if (tryReplaceThenReturnIfNumerical("randHeight")) {
+          newDimensions.bottom += Math.random() * (newDimensions.top - newDimensions.bottom) * (1 - replace.randHeight);
+          newDimensions.top = newDimensions.bottom + (newDimensions.top - newDimensions.bottom) * replace.randHeight;
+        }
+        if (tryReplaceThenReturnIfNumerical("back")) {
+          newDimensions.back =
+            (currentDimensions.front - currentDimensions.back) * replace.back + currentDimensions.back;
+        }
+        if (tryReplaceThenReturnIfNumerical("front")) {
+          newDimensions.front =
+            (currentDimensions.front - currentDimensions.back) * replace.front + currentDimensions.back;
+        }
+        if (tryReplaceThenReturnIfNumerical("randDepth")) {
+          newDimensions.back += Math.random() * (newDimensions.front - newDimensions.back) * (1 - replace.randDepth);
+          newDimensions.front = newDimensions.back + (newDimensions.front - newDimensions.back) * replace.randDepth;
+        }
+        if (tryReplaceThenReturnIfNumerical("hueShift")) {
+          newDimensions.hueShift += replace.hueShift;
+        }
+        if (tryReplaceThenReturnIfNumerical("hueShiftChance")) {
+          newDimensions.hueShift += Math.random() > replace.hueShiftChance ? 1 : 0;
+        }
+        if (tryReplaceThenReturnIfNumerical("saturation")) {
+          newDimensions.saturation += replace.saturation;
+        }
+        if (tryReplaceThenReturnIfNumerical("brightness")) {
+          newDimensions.brightness += replace.brightness;
+        }
+        processRule(rules[replace.id], newDimensions);
+        lastDimensions = newDimensions;
       }
-      if (tryReplaceThenReturnIfNumerical("left")) {
-        newDimensions.left =
-          (currentDimensions.right - currentDimensions.left) * replace.left + currentDimensions.left;
-      }
-      if (tryReplaceThenReturnIfNumerical("right")) {
-        newDimensions.right =
-          (currentDimensions.right - currentDimensions.left) * replace.right + currentDimensions.left;
-      }
-      if (tryReplaceThenReturnIfNumerical("bottom")) {
-        newDimensions.bottom =
-          (currentDimensions.top - currentDimensions.bottom) * replace.bottom + currentDimensions.bottom;
-      }
-      if (tryReplaceThenReturnIfNumerical("top")) {
-        newDimensions.top =
-          (currentDimensions.top - currentDimensions.bottom) * replace.top + currentDimensions.bottom;
-      }
-      if (tryReplaceThenReturnIfNumerical("back")) {
-        newDimensions.back =
-          (currentDimensions.front - currentDimensions.back) * replace.back + currentDimensions.back;
-      }
-      if (tryReplaceThenReturnIfNumerical("front")) {
-        newDimensions.front =
-          (currentDimensions.front - currentDimensions.back) * replace.front + currentDimensions.back;
-      }
-      if (tryReplaceThenReturnIfNumerical("hueShift")) {
-        newDimensions.hueShift += replace.hueShift;
-      }
-      if (tryReplaceThenReturnIfNumerical("hueShiftChance")) {
-        newDimensions.hueShift += Math.random() > replace.hueShiftChance ? 1 : 0;
-      }
-      if (tryReplaceThenReturnIfNumerical("saturation")) {
-        newDimensions.saturation += replace.saturation;
-      }
-      if (tryReplaceThenReturnIfNumerical("brightness")) {
-        newDimensions.brightness += replace.brightness;
-      }
-      processRule(rules[replace.id], newDimensions);
-      lastDimensions = newDimensions;
     }
   }
 }
