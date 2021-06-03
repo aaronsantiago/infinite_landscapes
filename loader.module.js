@@ -99,8 +99,8 @@ function createObject(url, palette, waviness = 0, drawFillShapes = true, drawStr
 
         const geometry = new THREE.ShapeGeometry(shape);
         const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.z = z;
-        z += .3;
+        mesh.position.z += z;
+        z += .6;
         group.add(mesh);
       }
     }
