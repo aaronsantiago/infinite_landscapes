@@ -7,7 +7,7 @@ uniform float waviness;
 
 const wavyVert = `
 vec3 transformed = vec3( position );
-transformed = transformed + vec3(0, 0, sin((modelMatrix * vec4(position,1) + time).x/5.0)*30.0 * waviness);
+transformed = transformed + vec3(cos((modelMatrix * vec4(position,1) + time).x/5.0)*30.0 * waviness, sin((modelMatrix * vec4(position,1) + time).x/5.0)*30.0 * waviness, 0);
 `;
 
 const fogParsVert = `
