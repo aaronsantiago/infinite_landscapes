@@ -271,9 +271,9 @@ rules:
       hueShift: 6
     spawn:
     - presetId: castleBig
-      count: $castle/spawnCount
+      count: $castle/spawnCount 2
       xRange: 1
-      yRange: 0.13
+      yRange: 1
       zRange: 1
   ship:
     replace:
@@ -285,7 +285,7 @@ rules:
       hueShift: 1
     spawn:
     - presetId: shipBig
-      count: $ship/spawnCount
+      count: $ship/spawnCount 2
       xRange: 1
       yRange: .15
       zRange: 1

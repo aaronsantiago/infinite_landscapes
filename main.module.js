@@ -56,7 +56,6 @@ function init() {
   //           -50,
   //           .1,
   //           5000);
-  camera.position.set(0, 10 + Math.random() * -35, 80);
   // camera.rotation.set(10, 0, 0);
 
   //
@@ -119,10 +118,12 @@ panelFolders[""] = pane;
 
 function findSliderReferencesInChildren(rule) {
   for (let key in rule) {
-    let value = rule[key];
-    if (typeof value === "string") {
-      if (value[0] != "$") continue;
-      value = value.slice(1);
+    let ruleValue = rule[key];
+    if (typeof ruleValue === "string") {
+      if (ruleValue[0] != "$") continue;
+      ruleValue = ruleValue.slice(1);
+
+      let [value, ...args] = ruleValue.split(" ");
       let foldersValue = value.split("/");
       let cumulativeFolderName = "";
 
@@ -145,12 +146,12 @@ function findSliderReferencesInChildren(rule) {
 
       let sliderName = foldersValue[foldersValue.length - 1];
 
-      panelFolderParams[cumulativeFolderName][sliderName] = 0;
+      panelFolderParams[cumulativeFolderName][sliderName] = args[0] || 0;
       panelFolders[cumulativeFolderName].addInput(panelFolderParams[cumulativeFolderName], sliderName,
         {presetKey: cumulativeFolderName + "/" + sliderName});
 
     }
-    else if (isNaN(value)) {
+    else if (isNaN(ruleValue)) {
       findSliderReferencesInChildren(rule[key]);
     }
   }
@@ -186,7 +187,7 @@ function loadAll(rules) {
     console.log("loading panel string");
     pane.importPreset(JSON.parse(localStorage.getItem("panelString")));
   }
-  
+
   const mt = Random.MersenneTwister19937.seed(PARAMS.seed);
   Math.random = () => Random.real(0, 1)(mt);
 
@@ -241,11 +242,9 @@ function newDimensions() {
 
 function getNumericalOrReadSlider(value) {
   if (typeof value === "string") {
-    // $test/test2/thing2
-    // test/test2/thing2
 
     if (value[0] == "$") {
-      value = value.slice(1);
+      value = _.first(value.split(" ")).slice(1);
 
       let sliderName = _.last(value.split("/"));
       let folderName = value.slice(0, value.length - (1 + sliderName.length));
