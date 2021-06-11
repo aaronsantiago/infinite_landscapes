@@ -1,0 +1,342 @@
+---
+initial:
+- id: traditional
+  left: 0
+  right: 1
+  bottom: 0
+  top: 1
+presets:
+  cloud:
+    url: cloud.svg
+    size: 0.09
+    sizeRange: .1
+    waviness: .1
+  diamond:
+    url: diamond.svg
+    size: .2
+  fire:
+    url: fire.svg
+    size: .03
+    yOffset: -10
+    waviness: 1
+  airplane:
+    url: airplane.svg
+    size: 0.1
+    hueShift: 1
+    saturation: 80
+    sizeRange: .005
+  castleBig:
+    url: castle.svg
+    size: 0.14
+    yOffset: 10
+  shipBig:
+    url: ship.svg
+    size: 0.11
+    yOffset: -10
+  sailboatBig:
+    url: sailboat.svg
+    size: 0.3
+    waviness: .05
+    yOffset: -15
+  castle:
+    url: castle.svg
+    size: 0.09
+    yOffset: -5
+  ship:
+    url: ship.svg
+    size: 0.05
+    yOffset: -25
+  sailboat:
+    url: sailboat.svg
+    size: 0.1
+    waviness: .2
+    yOffset: -24
+rules:
+  traditional:
+    hueShiftChance: .1
+    replace:
+    - id: cloudZone
+      hueShiftChance: .3
+      saturation: -42
+      brightness: 20
+      front: .5
+      bottom: 1
+      top: 1.8
+    - id: cloudZone3
+      hueShiftChance: .3
+      saturation: -45
+      brightness: 20
+      front: .2
+      back: -1
+      bottom: 1
+      left: -1.5
+      right: 2.5
+      top: 1.8
+    - id: cloudZone2
+      hueShiftChance: .3
+      saturation: -40
+      brightness: 20
+      right: .3
+      left: -1
+      back: .5
+      front: 1.5
+      bottom: 1
+      top: 1.8
+    - id: cloudZone2
+      hueShiftChance: .3
+      saturation: -40
+      brightness: 20
+      front: 1.5
+      left: .7
+      right: 2
+      back: .5
+      bottom: 1
+      top: 1.8
+    - id: skyAnomaly
+      count: 2
+      probability: .15
+      bottom: .6
+      front: .7
+      back: -1
+      left: -.3
+      right: 1.3
+      randWidth: .2
+      randHeight: .8
+      randDepth: .4
+    - id: feature
+      hueShift: 2
+      left: 0
+      right: 1
+      bottom: 0
+      front: .8
+      back: -.2
+    - id: background
+      left: -2
+      right: 3
+      bottom: 0
+      front: 1.2
+      back: -3
+      saturation: -40
+  skyAnomaly:
+    replaceOne:
+    - id: ufoZone
+    - id: skyEngineZone
+      hueShift: 3
+  skyEngineZone:
+    replaceOne:
+    - id: skyEngineNormalZone
+    - id: skyEngineNormalZone
+    - id: skyEngineNormalZone
+    - id: skyEngineNormalZone
+    - id: skyEngineNormalZone
+    - id: skyEngineMegaZone
+  skyEngineNormalZone:
+    spawn:
+    - url: skyengine.svg
+      count: 1
+      waviness: .2
+      size: .3
+  skyEngineMegaZone:
+    spawn:
+    - url: skyengine.svg
+      count: 1
+      waviness: .8
+      size: .3
+  ufoZone:
+    spawn:
+    - url: ufo.svg
+      count: 1
+      hueShift: 1
+      size: .1
+    - url:
+      - person1.svg
+      - person2.svg
+      - person3.svg
+      - person4.svg
+      - person5.svg
+      - person6.svg
+      - person7.svg
+      - person8.svg
+      - person9.svg
+      - person10.svg
+      - person12.svg
+      - person11.svg
+      - person14.svg
+      count: 10
+      size: 0.03
+      xRange: 1
+      yOffset: -25
+      probability: 0.3
+      yRange: 1
+      zRange: 1
+  cloudZone:
+    spawn:
+    - presetId: cloud
+      count: 3
+      probability: 0.9
+      xRange: 1
+      yRange: 0.7
+      zRange: 1
+    - presetId: cloud
+      count: 3
+      probability: 0.9
+      xRange: 1
+      yRange: 0.7
+      zRange: 1
+  cloudZone2:
+    spawn:
+    - presetId: cloud
+      count: 8
+      probability: 0.9
+      xRange: 1
+      yRange: 0.7
+      zRange: 1
+    - presetId: cloud
+      count: 8
+      probability: 0.9
+      xRange: 1
+      yRange: 0.7
+      zRange: 1
+  cloudZone3:
+    spawn:
+    - presetId: airplane
+      count: 2
+      probability: .1
+      xRange: 1
+      yRange: 0.7
+      zRange: 1
+    - presetId: cloud
+      count: 20
+      probability: 0.9
+      xRange: 1
+      yRange: 0.7
+      zRange: 1
+    - presetId: cloud
+      count: 20
+      probability: 0.9
+      xRange: 1
+      yRange: 0.7
+      zRange: 1
+  feature:
+    replaceOne:
+    - id: castle
+      saturation: 20
+    - id: ship
+      saturation: 20
+    - id: sailboats
+      saturation: 20
+  background:
+    replaceOne:
+    - id: backgroundSailboat
+    - id: backgroundPeople
+    - id: backgroundDiamonds
+    - id: backgroundFire
+    - id: none
+  none:
+  backgroundSailboat:
+    spawn:
+    - presetId: sailboat
+      count: 25
+      xRange: 1
+      zRange: 1
+  backgroundDiamonds:
+    spawn:
+    - presetId: diamond
+      count: 35
+      xRange: 1
+      zRange: 1
+      yRange: 1
+  backgroundFire:
+    spawn:
+    - presetId: fire
+      count: 35
+      xRange: 1
+      zRange: 1
+  backgroundPeople:
+    spawn:
+    - url: person13.svg
+      count: 250
+      size: 0.03
+      xRange: 1
+      yOffset: -45
+      yRange: .01
+      zRange: 1
+  castle:
+    replace:
+    - id: surface
+      hueShift: 2
+    - id: surface
+      hueShift: 4
+    - id: surface
+      hueShift: 6
+    spawn:
+    - presetId: castleBig
+      count: 1
+      xRange: 1
+      yRange: 0.13
+      zRange: 1
+  ship:
+    replace:
+    - id: surface
+      hueShift: 2
+    - id: surface
+      hueShift: 4
+    - id: surface
+      hueShift: 1
+    spawn:
+    - presetId: shipBig
+      count: $ship/spawnCount
+      xRange: 1
+      yRange: .15
+      zRange: 1
+  sailboats:
+    replace:
+    - id: surface
+      hueShift: 2
+    - id: surface
+      hueShift: 4
+    - id: surface
+      hueShift: 6
+    - id: surface
+      hueShift: 2
+    - id: surface
+      hueShift: 4
+    - id: surface
+      hueShift: 6
+    - id: surface
+      hueShift: 2
+    - id: surface
+      hueShift: 4
+    - id: surface
+      hueShift: 6
+    spawn:
+    - presetId: sailboat
+      probability: $sailboat/spawnChance
+      count: $sailboat/spawnCount
+      xRange: 1
+      yRange: 0
+      zRange: 1
+  surface:
+    spawn:
+    - url:
+      - person1.svg
+      - person2.svg
+      - person3.svg
+      - person4.svg
+      - person5.svg
+      - person6.svg
+      - person7.svg
+      - person8.svg
+      - person9.svg
+      - person10.svg
+      - person11.svg
+      - person12.svg
+      - person13.svg
+      - person14.svg
+      count: 15
+      size: 0.03
+      xRange: 1
+      yOffset: -45
+      probability: 0.1
+      yRange: 0.01
+      zRange: 1

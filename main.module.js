@@ -7,6 +7,12 @@ import * as yaml from './libs/yaml.module.js';
 // import Stats from './libs/stats.module.js';
 // import { OrbitControls } from './libs/OrbitControls.js';
 
+// CDN
+const pane = new Tweakpane.Pane();
+
+pane.registerPlugin(TweakpaneIntervalPlugin);
+let initialized = false;
+
 let renderer, stats, scene, camera, gui, guiData;
 let loaded = false;
 let jsonLoaded = false;
@@ -126,10 +132,56 @@ function allLoaded() {
   }
   return true;
 }
+
+let panelFolders = {};
+let panelFolderParams = {};
+panelFolders[""] = pane;
+
+function findSliderReferencesInChildren(rule) {
+  for (let key in rule) {
+    let value = rule[key];
+    if (typeof value === "string") {
+      if (value[0] != "$") continue;
+      value = value.slice(1);
+      let foldersValue = value.split("/");
+      let cumulativeFolderName = "";
+
+      // make sure all folders are created in the UI
+      // before trying to add the slider
+      for (let i = 0; i < foldersValue.length - 1; i++) {
+        let folderName = foldersValue[i];
+        let previousFolderName = cumulativeFolderName;
+        cumulativeFolderName += cumulativeFolderName == "" ? "" : "/";
+        cumulativeFolderName += folderName;
+
+        if (!(cumulativeFolderName in panelFolders)) {
+          panelFolders[cumulativeFolderName] = 
+            panelFolders[previousFolderName].addFolder({
+              title: folderName
+            })
+          panelFolderParams[cumulativeFolderName] = {};
+        }
+      }
+
+      let sliderName = foldersValue[foldersValue.length - 1];
+
+      panelFolderParams[cumulativeFolderName][sliderName] = 0;
+      panelFolders[cumulativeFolderName].addInput(panelFolderParams[cumulativeFolderName], sliderName,
+        {presetKey: cumulativeFolderName + "/" + sliderName});
+
+    }
+    else if (isNaN(value)) {
+      findSliderReferencesInChildren(rule[key]);
+    }
+  }
+}
+
 function loadAll(rules) {
   for (let ruleKey in rules) {
     let rule = rules[ruleKey];
     if (rule == null) continue;
+    findSliderReferencesInChildren(rule);
+
     if ("spawn" in rule) {
       for (let spawn of rule["spawn"]) {
         checkAndApplyPreset(spawn);
@@ -149,6 +201,12 @@ function loadAll(rules) {
       }
     }
   }
+
+  if ("panelString" in localStorage) {
+    console.log("loading panel string");
+    pane.importPreset(JSON.parse(localStorage.getItem("panelString")));
+  }
+  initialized = true;
 }
 
 function newDimensions() {
@@ -163,6 +221,22 @@ function newDimensions() {
       "saturation": 0, 
       "brightness": 0, 
     };
+}
+
+function getNumericalOrReadSlider(value) {
+  if (typeof value === "string") {
+    // $test/test2/thing2
+    // test/test2/thing2
+
+    if (value[0] == "$") {
+      value = value.slice(1);
+
+      let sliderName = _.last(value.split("/"));
+      let folderName = value.slice(0, value.length - (1 + sliderName.length));
+      return panelFolderParams[folderName][sliderName];
+    }
+  }
+  return value;
 }
 
 function checkAndApplyPreset(obj) {
@@ -182,8 +256,8 @@ function processRule(rule, currentDimensions) {
   if (rule == null) return;
   if ("spawn" in rule) {
     for (let spawn of rule["spawn"]) {
-      for (let i = 0; i < spawn["count"]; i++) {
-        if ("probability" in spawn && Math.random() > spawn["probability"]) continue;
+      for (let i = 0; i < getNumericalOrReadSlider(spawn["count"]); i++) {
+        if ("probability" in spawn && Math.random() > getNumericalOrReadSlider(spawn["probability"])) continue;
 
 try {
         let hueShiftedPrimary = chromatism.saturation(currentDimensions.saturation, allColors[(currentColor + currentDimensions.hueShift)% allColors.length]).cssrgb;
@@ -192,7 +266,6 @@ try {
 
         hueShiftedPrimary = chromatism.shade(currentDimensions.brightness, hueShiftedPrimary).cssrgb;
         hueShiftedSecondary = chromatism.shade(currentDimensions.brightness, hueShiftedSecondary).cssrgb;
-        console.log(currentDimensions.brightness);
         let palette = {
           "rgb(237,28,36)": hueShiftedPrimary,
           "rgb(255,242,0)": chromatism.shade(20, hueShiftedPrimary).cssrgb, // main light
@@ -206,27 +279,27 @@ try {
         // currentColor++;
         // if (currentColor >= allColors.length)
         //   currentColor = 1;
-        let url = spawn["url"];
+        let url = getNumericalOrReadSlider(spawn["url"]);
         if (typeof(url) == "object") {
           url = url[Math.floor(Math.random() * url.length)];
         }
 
-        let spawnedObj = Loader.createObject("assets/" + url, palette, spawn["waviness"] || 0);
+        let spawnedObj = Loader.createObject("assets/" + url, palette, getNumericalOrReadSlider(spawn["waviness"]) || 0);
         let size = 1;
         if ("size" in spawn)
-          size = spawn["size"];
+          size = getNumericalOrReadSlider(spawn["size"]);
         if ("sizeRange" in spawn)
-          size += Math.random() * spawn["sizeRange"];
+          size += Math.random() * getNumericalOrReadSlider(spawn["sizeRange"]);
         spawnedObj.scale.multiplyScalar(size);
         let xRange = 0;
         let yRange = 0;
         let zRange = 0;
         if ("xRange" in spawn)
-          xRange = spawn["xRange"];
+          xRange = getNumericalOrReadSlider(spawn["xRange"]);
         if ("yRange" in spawn)
-          yRange = spawn["yRange"];
+          yRange = getNumericalOrReadSlider(spawn["yRange"]);
         if ("zRange" in spawn)
-          zRange = spawn["zRange"];
+          zRange = getNumericalOrReadSlider(spawn["zRange"]);
         spawnedObj.position.x =
           (currentDimensions.left +
           (currentDimensions.right - currentDimensions.left) / 2 +
@@ -240,15 +313,15 @@ try {
           (currentDimensions.front - currentDimensions.back) / 2 +
           (currentDimensions.front - currentDimensions.back) * (Math.random() - .5) * zRange) * 500 - 650;
         if ("xOffset" in spawn) 
-          spawnedObj.position.y += spawn["xOffset"];
+          spawnedObj.position.y += getNumericalOrReadSlider(spawn["xOffset"]);
         if ("yOffset" in spawn) 
-          spawnedObj.position.y += spawn["yOffset"];
+          spawnedObj.position.y += getNumericalOrReadSlider(spawn["yOffset"]);
         if ("zOffset" in spawn) 
-          spawnedObj.position.y += spawn["zOffset"];
+          spawnedObj.position.y += getNumericalOrReadSlider(spawn["zOffset"]);
         scene.add(spawnedObj);
       }
-      catch {
-        console.log("wat");
+      catch (e){
+        console.log(e);
       }
       }
     }
@@ -351,6 +424,8 @@ function onWindowResize() {
 }
 
 function animate() {
+  if (initialized) localStorage.setItem("panelString", JSON.stringify(pane.exportPreset()));
+
 
   requestAnimationFrame(animate);
   // camera.rotation.y = Math.sin(Date.now() / 1000 / 4) / 10;
@@ -365,7 +440,7 @@ function animate() {
 
     let rawFile = new XMLHttpRequest();
     rawFile.overrideMimeType("application/yaml");
-    rawFile.open("GET", "rules/traditional.yaml", true);
+    rawFile.open("GET", "rules/sliders.yaml", true);
     rawFile.onreadystatechange = function () {
       if (!jsonLoaded && rawFile.readyState === 4 && rawFile.status == "200") {
         // initialize
