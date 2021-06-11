@@ -1,7 +1,11 @@
 import * as THREE from './libs/three.module.js';
-import { GUI } from './libs/dat.gui.module.js';
+import {
+  GUI
+} from './libs/dat.gui.module.js';
 import * as Loader from './loader.module.js';
-import { Water } from './libs/three.water.js';
+import {
+  Water
+} from './libs/three.water.js';
 
 import * as yaml from './libs/yaml.module.js';
 // import Stats from './libs/stats.module.js';
@@ -11,12 +15,16 @@ import * as yaml from './libs/yaml.module.js';
 let PARAMS = {
   seed: 0,
   colorSeed: 0,
+  randomizeSeed: false,
 }
+
+let mt;
 
 // CDN
 const pane = new Tweakpane.Pane();
-pane.addInput(PARAMS, "seed");
-pane.addInput(PARAMS, "colorSeed");
+pane.addInput(PARAMS, "seed", {step: 1});
+pane.addInput(PARAMS, "colorSeed", {step: 1});
+pane.addInput(PARAMS, "randomizeSeed");
 
 pane.registerPlugin(TweakpaneIntervalPlugin);
 let initialized = false;
@@ -31,7 +39,7 @@ let water = null;
 let loadedUrls = [];
 
 let radius, angle, brightness,
- oppositeSegments, oppositeSpreadAngle, mainPrimary, allColors;
+  oppositeSegments, oppositeSpreadAngle, mainPrimary, allColors;
 
 
 let currentColor = 0;
@@ -61,8 +69,8 @@ function init() {
   //
 
   renderer = new THREE.WebGLRenderer({
-      antialias: true
-    });
+    antialias: true
+  });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   container.appendChild(renderer.domElement);
@@ -82,10 +90,10 @@ function init() {
   const waterGeometry = new THREE.PlaneGeometry(10000, 10000);
 
   water = new Water(
-      waterGeometry, {
+    waterGeometry, {
       textureWidth: 512,
       textureHeight: 512,
-      waterNormals: new THREE.TextureLoader().load('textures/waternormals.jpg', function (texture) {
+      waterNormals: new THREE.TextureLoader().load('textures/waternormals.jpg', function(texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
@@ -99,11 +107,12 @@ function init() {
       fog: scene.fog !== undefined
     });
 
-  water.rotation.x =  - Math.PI / 2;
+  water.rotation.x = -Math.PI / 2;
   water.position.y = -45;
 
   scene.add(water);
 }
+
 function allLoaded() {
   for (let url of loadedUrls) {
     if (!Loader.isLoaded(url))
@@ -111,6 +120,8 @@ function allLoaded() {
   }
   return true;
 }
+
+let baseRandom;
 
 let panelFolders = {};
 let panelFolderParams = {};
@@ -136,7 +147,7 @@ function findSliderReferencesInChildren(rule) {
         cumulativeFolderName += folderName;
 
         if (!(cumulativeFolderName in panelFolders)) {
-          panelFolders[cumulativeFolderName] = 
+          panelFolders[cumulativeFolderName] =
             panelFolders[previousFolderName].addFolder({
               title: folderName
             })
@@ -147,11 +158,11 @@ function findSliderReferencesInChildren(rule) {
       let sliderName = foldersValue[foldersValue.length - 1];
 
       panelFolderParams[cumulativeFolderName][sliderName] = args[0] || 0;
-      panelFolders[cumulativeFolderName].addInput(panelFolderParams[cumulativeFolderName], sliderName,
-        {presetKey: cumulativeFolderName + "/" + sliderName});
+      panelFolders[cumulativeFolderName].addInput(panelFolderParams[cumulativeFolderName], sliderName, {
+        presetKey: cumulativeFolderName + "/" + sliderName
+      });
 
-    }
-    else if (isNaN(ruleValue)) {
+    } else if (isNaN(ruleValue)) {
       findSliderReferencesInChildren(rule[key]);
     }
   }
@@ -166,6 +177,7 @@ function loadAll(rules) {
     if ("spawn" in rule) {
       for (let spawn of rule["spawn"]) {
         checkAndApplyPreset(spawn);
+
         function loadUrl(url) {
           url = "assets/" + url;
           Loader.loadSVG(url);
@@ -175,8 +187,7 @@ function loadAll(rules) {
           for (let spawnUrl of spawn.url) {
             loadUrl(spawnUrl);
           }
-        }
-        else {
+        } else {
           loadUrl(spawn.url);
         }
       }
@@ -188,8 +199,16 @@ function loadAll(rules) {
     pane.importPreset(JSON.parse(localStorage.getItem("panelString")));
   }
 
-  const mt = Random.MersenneTwister19937.seed(PARAMS.seed);
-  Math.random = () => Random.real(0, 1)(mt);
+  if (PARAMS.randomizeSeed) {
+    PARAMS.seed = Math.floor(Math.random() * 100000);
+    PARAMS.colorSeed = Math.floor(Math.random() * 100000);
+  }
+
+  mt = Random.MersenneTwister19937.seed(PARAMS.seed);
+  baseRandom = function() {
+    return Random.real(0, 1)(mt);
+    console.log(mt.uses);
+  };
 
   const mt2 = Random.MersenneTwister19937.seed(PARAMS.colorSeed);
   let colorRandom = () => Random.real(0, 1)(mt2);
@@ -209,7 +228,7 @@ function loadAll(rules) {
   }).cssrgb;
   allColors = [mainPrimary];
   for (let i = 0; i < oppositeSegments; i++) {
-  allColors.push(chromatism.convert({
+    allColors.push(chromatism.convert({
       L: brightness,
       a: Math.cos(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle) * radius,
       b: Math.sin(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle) * radius
@@ -218,7 +237,7 @@ function loadAll(rules) {
   // ****************************************************
 
   scene.background = new THREE.Color(
-      chromatism.saturation(-50, chromatism.shade(-16 + colorRandom() * 42, mainPrimary).cssrgb).cssrgb);
+    chromatism.saturation(-50, chromatism.shade(-16 + colorRandom() * 42, mainPrimary).cssrgb).cssrgb);
   const near = 10;
   const far = 1200;
   scene.fog = new THREE.Fog(scene.background, near, far);
@@ -228,16 +247,16 @@ function loadAll(rules) {
 
 function newDimensions() {
   return {
-      "left": 0,
-      "right": 1,
-      "bottom": 0,
-      "top": 1,
-      "front": 1,
-      "back": 0,
-      "hueShift": 0, 
-      "saturation": 0, 
-      "brightness": 0, 
-    };
+    "left": 0,
+    "right": 1,
+    "bottom": 0,
+    "top": 1,
+    "front": 1,
+    "back": 0,
+    "hueShift": 0,
+    "saturation": 0,
+    "brightness": 0,
+  };
 }
 
 function getNumericalOrReadSlider(value) {
@@ -269,84 +288,85 @@ function processRule(rule, currentDimensions) {
   console.log("processing rule:");
   console.log(rule);
   if (rule == null) return;
+
+  const mt3 = Random.MersenneTwister19937.seed(mt.next());
+  let spawnRandom = () => Random.real(0, 1)(mt3);
   if ("spawn" in rule) {
     for (let spawn of rule["spawn"]) {
       for (let i = 0; i < getNumericalOrReadSlider(spawn["count"]); i++) {
-        if ("probability" in spawn && Math.random() > getNumericalOrReadSlider(spawn["probability"])) continue;
+        if ("probability" in spawn && spawnRandom() > getNumericalOrReadSlider(spawn["probability"])) continue;
 
-try {
-        let hueShiftedPrimary = chromatism.saturation(currentDimensions.saturation, allColors[(currentColor + currentDimensions.hueShift)% allColors.length]).cssrgb;
-        let hueShiftedSecondary = chromatism.saturation(currentDimensions.saturation, allColors[(currentColor + currentDimensions.hueShift + 1)% allColors.length]).cssrgb;
+        try {
+          let hueShiftedPrimary = chromatism.saturation(currentDimensions.saturation, allColors[(currentColor + currentDimensions.hueShift) % allColors.length]).cssrgb;
+          let hueShiftedSecondary = chromatism.saturation(currentDimensions.saturation, allColors[(currentColor + currentDimensions.hueShift + 1) % allColors.length]).cssrgb;
 
 
-        hueShiftedPrimary = chromatism.shade(currentDimensions.brightness, hueShiftedPrimary).cssrgb;
-        hueShiftedSecondary = chromatism.shade(currentDimensions.brightness, hueShiftedSecondary).cssrgb;
-        let palette = {
-          "rgb(237,28,36)": hueShiftedPrimary,
-          "rgb(255,242,0)": chromatism.shade(20, hueShiftedPrimary).cssrgb, // main light
-          "rgb(236,0,140)": chromatism.shade(-10, hueShiftedPrimary).cssrgb, // main dark
-          "rgb(0,166,81)": hueShiftedSecondary, // secondary primary
-          "rgb(46,49,146)": chromatism.shade(-10, hueShiftedSecondary).cssrgb, // secondary dark
-          "rgb(0,174,239)": chromatism.shade(20, hueShiftedSecondary).cssrgb, // secondary light
-          "rgb(255,255,255)": "rgb(255, 255, 255)",
-        };
-        // // extra jank
-        // currentColor++;
-        // if (currentColor >= allColors.length)
-        //   currentColor = 1;
-        let url = getNumericalOrReadSlider(spawn["url"]);
-        if (typeof(url) == "object") {
-          url = url[Math.floor(Math.random() * url.length)];
+          hueShiftedPrimary = chromatism.shade(currentDimensions.brightness, hueShiftedPrimary).cssrgb;
+          hueShiftedSecondary = chromatism.shade(currentDimensions.brightness, hueShiftedSecondary).cssrgb;
+          let palette = {
+            "rgb(237,28,36)": hueShiftedPrimary,
+            "rgb(255,242,0)": chromatism.shade(20, hueShiftedPrimary).cssrgb, // main light
+            "rgb(236,0,140)": chromatism.shade(-10, hueShiftedPrimary).cssrgb, // main dark
+            "rgb(0,166,81)": hueShiftedSecondary, // secondary primary
+            "rgb(46,49,146)": chromatism.shade(-10, hueShiftedSecondary).cssrgb, // secondary dark
+            "rgb(0,174,239)": chromatism.shade(20, hueShiftedSecondary).cssrgb, // secondary light
+            "rgb(255,255,255)": "rgb(255, 255, 255)",
+          };
+          // // extra jank
+          // currentColor++;
+          // if (currentColor >= allColors.length)
+          //   currentColor = 1;
+          let url = getNumericalOrReadSlider(spawn["url"]);
+          if (typeof(url) == "object") {
+            url = url[Math.floor(spawnRandom() * url.length)];
+          }
+
+          let spawnedObj = Loader.createObject("assets/" + url, palette, getNumericalOrReadSlider(spawn["waviness"]) || 0);
+          let size = 1;
+          if ("size" in spawn)
+            size = getNumericalOrReadSlider(spawn["size"]);
+          if ("sizeRange" in spawn)
+            size += spawnRandom() * getNumericalOrReadSlider(spawn["sizeRange"]);
+          spawnedObj.scale.multiplyScalar(size);
+          let xRange = 0;
+          let yRange = 0;
+          let zRange = 0;
+          if ("xRange" in spawn)
+            xRange = getNumericalOrReadSlider(spawn["xRange"]);
+          if ("yRange" in spawn)
+            yRange = getNumericalOrReadSlider(spawn["yRange"]);
+          if ("zRange" in spawn)
+            zRange = getNumericalOrReadSlider(spawn["zRange"]);
+          spawnedObj.position.x =
+            (currentDimensions.left +
+              (currentDimensions.right - currentDimensions.left) / 2 +
+              (currentDimensions.right - currentDimensions.left) * (spawnRandom() - .5) * xRange) * 200 - 100;
+          spawnedObj.position.y =
+            (currentDimensions.bottom +
+              (currentDimensions.top - currentDimensions.bottom) / 2 +
+              (currentDimensions.top - currentDimensions.bottom) * (spawnRandom() - .5) * yRange) * 100 - 50;
+          spawnedObj.position.z =
+            (currentDimensions.back +
+              (currentDimensions.front - currentDimensions.back) / 2 +
+              (currentDimensions.front - currentDimensions.back) * (spawnRandom() - .5) * zRange) * 500 - 650;
+          if ("xOffset" in spawn)
+            spawnedObj.position.y += getNumericalOrReadSlider(spawn["xOffset"]);
+          if ("yOffset" in spawn)
+            spawnedObj.position.y += getNumericalOrReadSlider(spawn["yOffset"]);
+          if ("zOffset" in spawn)
+            spawnedObj.position.y += getNumericalOrReadSlider(spawn["zOffset"]);
+          scene.add(spawnedObj);
+        } catch (e) {
+          console.log(e);
         }
-
-        let spawnedObj = Loader.createObject("assets/" + url, palette, getNumericalOrReadSlider(spawn["waviness"]) || 0);
-        let size = 1;
-        if ("size" in spawn)
-          size = getNumericalOrReadSlider(spawn["size"]);
-        if ("sizeRange" in spawn)
-          size += Math.random() * getNumericalOrReadSlider(spawn["sizeRange"]);
-        spawnedObj.scale.multiplyScalar(size);
-        let xRange = 0;
-        let yRange = 0;
-        let zRange = 0;
-        if ("xRange" in spawn)
-          xRange = getNumericalOrReadSlider(spawn["xRange"]);
-        if ("yRange" in spawn)
-          yRange = getNumericalOrReadSlider(spawn["yRange"]);
-        if ("zRange" in spawn)
-          zRange = getNumericalOrReadSlider(spawn["zRange"]);
-        spawnedObj.position.x =
-          (currentDimensions.left +
-          (currentDimensions.right - currentDimensions.left) / 2 +
-          (currentDimensions.right - currentDimensions.left) * (Math.random() - .5) * xRange) * 200 - 100;
-        spawnedObj.position.y =
-          (currentDimensions.bottom +
-          (currentDimensions.top - currentDimensions.bottom) / 2 +
-          (currentDimensions.top - currentDimensions.bottom) * (Math.random() - .5) * yRange) * 100 - 50;
-        spawnedObj.position.z =
-          (currentDimensions.back +
-          (currentDimensions.front - currentDimensions.back) / 2 +
-          (currentDimensions.front - currentDimensions.back) * (Math.random() - .5) * zRange) * 500 - 650;
-        if ("xOffset" in spawn) 
-          spawnedObj.position.y += getNumericalOrReadSlider(spawn["xOffset"]);
-        if ("yOffset" in spawn) 
-          spawnedObj.position.y += getNumericalOrReadSlider(spawn["yOffset"]);
-        if ("zOffset" in spawn) 
-          spawnedObj.position.y += getNumericalOrReadSlider(spawn["zOffset"]);
-        scene.add(spawnedObj);
-      }
-      catch (e){
-        console.log(e);
-      }
       }
     }
   }
   if ("replaceOne" in rule) {
-    let chosen = rule["replaceOne"][Math.floor(Math.random() * rule["replaceOne"].length)];
+    let chosen = rule["replaceOne"][Math.floor(baseRandom() * rule["replaceOne"].length)];
     if ("replace" in rule) {
       rule["replace"].push(chosen);
-    }
-    else {
+    } else {
       rule["replace"] = [chosen];
     }
   }
@@ -354,11 +374,12 @@ try {
     let lastDimensions = newDimensions();
     for (let replace of rule["replace"]) {
       for (let i = 0; i < (replace["count"] || 1); i++) {
-        if ("probability" in replace && Math.random() > replace["probability"]) continue;
+        if ("probability" in replace && baseRandom() > replace["probability"]) continue;
         let newDimensions = Object.assign({}, currentDimensions);
+
         function tryReplaceThenReturnIfNumerical(dir) {
           if (dir in replace) {
-            if ((typeof replace[dir] === 'string' || replace[dir]instanceof String)) {
+            if ((typeof replace[dir] === 'string' || replace[dir] instanceof String)) {
               if (replace[dir].startsWith("previous_")) {
                 newDimensions[dir] = lastDimensions[replace[dir].split("_")[1]];
               }
@@ -377,7 +398,7 @@ try {
             (currentDimensions.right - currentDimensions.left) * replace.right + currentDimensions.left;
         }
         if (tryReplaceThenReturnIfNumerical("randWidth")) {
-          newDimensions.left += Math.random() * (newDimensions.right - newDimensions.left) * (1 - replace.randWidth);
+          newDimensions.left += baseRandom() * (newDimensions.right - newDimensions.left) * (1 - replace.randWidth);
           newDimensions.right = newDimensions.left + (newDimensions.right - newDimensions.left) * replace.randWidth;
         }
         if (tryReplaceThenReturnIfNumerical("bottom")) {
@@ -389,7 +410,7 @@ try {
             (currentDimensions.top - currentDimensions.bottom) * replace.top + currentDimensions.bottom;
         }
         if (tryReplaceThenReturnIfNumerical("randHeight")) {
-          newDimensions.bottom += Math.random() * (newDimensions.top - newDimensions.bottom) * (1 - replace.randHeight);
+          newDimensions.bottom += baseRandom() * (newDimensions.top - newDimensions.bottom) * (1 - replace.randHeight);
           newDimensions.top = newDimensions.bottom + (newDimensions.top - newDimensions.bottom) * replace.randHeight;
         }
         if (tryReplaceThenReturnIfNumerical("back")) {
@@ -401,14 +422,14 @@ try {
             (currentDimensions.front - currentDimensions.back) * replace.front + currentDimensions.back;
         }
         if (tryReplaceThenReturnIfNumerical("randDepth")) {
-          newDimensions.back += Math.random() * (newDimensions.front - newDimensions.back) * (1 - replace.randDepth);
+          newDimensions.back += baseRandom() * (newDimensions.front - newDimensions.back) * (1 - replace.randDepth);
           newDimensions.front = newDimensions.back + (newDimensions.front - newDimensions.back) * replace.randDepth;
         }
         if (tryReplaceThenReturnIfNumerical("hueShift")) {
           newDimensions.hueShift += replace.hueShift;
         }
         if (tryReplaceThenReturnIfNumerical("hueShiftChance")) {
-          newDimensions.hueShift += Math.random() > replace.hueShiftChance ? 1 : 0;
+          newDimensions.hueShift += baseRandom() > replace.hueShiftChance ? 1 : 0;
         }
         if (tryReplaceThenReturnIfNumerical("saturation")) {
           newDimensions.saturation += replace.saturation;
@@ -425,9 +446,9 @@ try {
 
 function onWindowResize() {
 
-// perspective
+  // perspective
   camera.aspect = window.innerWidth / window.innerHeight;
-// ortho
+  // ortho
   camera.left = -50 * window.innerWidth / window.innerHeight;
   camera.right = 50 * window.innerWidth / window.innerHeight;
   camera.top = 50;
@@ -456,13 +477,13 @@ function animate() {
     let rawFile = new XMLHttpRequest();
     rawFile.overrideMimeType("application/yaml");
     rawFile.open("GET", "rules/sliders.yaml", true);
-    rawFile.onreadystatechange = function () {
+    rawFile.onreadystatechange = function() {
       if (!jsonLoaded && rawFile.readyState === 4 && rawFile.status == "200") {
         // initialize
         parsedRules = yaml.load(rawFile.responseText);
         rules = parsedRules["rules"];
         presets = parsedRules["presets"] || {};
-        loadAll(rules,presets);
+        loadAll(rules, presets);
         console.log("loaded json");
         jsonLoaded = true;
       }
