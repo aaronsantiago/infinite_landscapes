@@ -271,7 +271,7 @@ rules:
       hueShift: 6
     spawn:
     - presetId: castleBig
-      count: 1
+      count: $castle/spawnCount
       xRange: 1
       yRange: 0.13
       zRange: 1

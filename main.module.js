@@ -7,8 +7,16 @@ import * as yaml from './libs/yaml.module.js';
 // import Stats from './libs/stats.module.js';
 // import { OrbitControls } from './libs/OrbitControls.js';
 
+
+let PARAMS = {
+  seed: 0,
+  colorSeed: 0,
+}
+
 // CDN
 const pane = new Tweakpane.Pane();
+pane.addInput(PARAMS, "seed");
+pane.addInput(PARAMS, "colorSeed");
 
 pane.registerPlugin(TweakpaneIntervalPlugin);
 let initialized = false;
@@ -22,33 +30,11 @@ let presets = {};
 let water = null;
 let loadedUrls = [];
 
-// ************ GENERATE PALETTE ***********************
-// radius determines saturation amount
-// angle determines hue
-let radius = Math.random() * 50 + 50;
-let angle = Math.random() * Math.PI * 2;
-let brightness = Math.random() * 35 + 45;
-
-let oppositeSegments = 6;
-let oppositeSpreadAngle = Math.PI / (1 + Math.random() * 3);
-let mainPrimary = chromatism.convert({
-    L: brightness,
-    a: Math.cos(angle) * radius,
-    b: Math.sin(angle) * radius
-  }).cssrgb;
-let allColors = [mainPrimary];
-for (let i = 0; i < oppositeSegments; i++) {
-  allColors.push(chromatism.convert({
-      L: brightness,
-      a: Math.cos(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle) * radius,
-      b: Math.sin(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle) * radius
-    }).cssrgb);
-}
-// *******************************************************
+let radius, angle, brightness,
+ oppositeSegments, oppositeSpreadAngle, mainPrimary, allColors;
 
 
 let currentColor = 0;
-
 init();
 animate();
 
@@ -59,12 +45,6 @@ function init() {
   //
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(
-      chromatism.saturation(-50, chromatism.shade(-16 + Math.random() * 42, mainPrimary).cssrgb).cssrgb);
-
-  const near = 10;
-  const far = 1200;
-  scene.fog = new THREE.Fog(scene.background, near, far);
   // scene.fog = new THREE.Fog(allColors[1], near, far);
   //
 
@@ -206,6 +186,42 @@ function loadAll(rules) {
     console.log("loading panel string");
     pane.importPreset(JSON.parse(localStorage.getItem("panelString")));
   }
+  
+  const mt = Random.MersenneTwister19937.seed(PARAMS.seed);
+  Math.random = () => Random.real(0, 1)(mt);
+
+  const mt2 = Random.MersenneTwister19937.seed(PARAMS.colorSeed);
+  let colorRandom = () => Random.real(0, 1)(mt2);
+  // ************ GENERATE PALETTE ***********************
+  // radius determines saturation amount
+  // angle determines hue
+  radius = colorRandom() * 50 + 50;
+  angle = colorRandom() * Math.PI * 2;
+  brightness = colorRandom() * 35 + 45;
+
+  oppositeSegments = 6;
+  oppositeSpreadAngle = Math.PI / (1 + colorRandom() * 3);
+  mainPrimary = chromatism.convert({
+    L: brightness,
+    a: Math.cos(angle) * radius,
+    b: Math.sin(angle) * radius
+  }).cssrgb;
+  allColors = [mainPrimary];
+  for (let i = 0; i < oppositeSegments; i++) {
+  allColors.push(chromatism.convert({
+      L: brightness,
+      a: Math.cos(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle) * radius,
+      b: Math.sin(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle) * radius
+    }).cssrgb);
+  }
+  // ****************************************************
+
+  scene.background = new THREE.Color(
+      chromatism.saturation(-50, chromatism.shade(-16 + colorRandom() * 42, mainPrimary).cssrgb).cssrgb);
+  const near = 10;
+  const far = 1200;
+  scene.fog = new THREE.Fog(scene.background, near, far);
+
   initialized = true;
 }
 
