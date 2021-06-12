@@ -39,8 +39,10 @@ const hideBoxButton = universePane.addButton({
 });
 
 hideBoxButton.on('click', () => {
-  sceneContainer.remove(box);
-  box = null;
+  drawBoundingBox = "";
+  savePanel();
+  resetColors();
+  redrawScene();
 });
 
 let pane = universePane.addFolder({
@@ -51,15 +53,16 @@ let pane = universePane.addFolder({
 
 pane.addInput(PARAMS, "seed", {step: 1});
 pane.addInput(PARAMS, "colorSeed", {step: 1});
-
+let debouncedFunc = _.throttle(() => {
+        savePanel();
+        resetColors();
+        redrawScene();
+      }, 100)
 let drawBoundingBox = "";
 pane.on('change', (ev) => {
   if (initialized) {
-    drawBoundingBox = ev.presetKey;
-    savePanel();
-    resetColors();
-    redrawScene();
-    // window.location = "";
+      drawBoundingBox = ev.presetKey;
+      debouncedFunc();
   }
 });
 let initialized = false;

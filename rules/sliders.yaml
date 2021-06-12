@@ -28,7 +28,7 @@ presets:
   castleBig:
     url: castle.svg
     size: 0.14
-    yOffset: 10
+    yOffset: 30
   shipBig:
     url: ship.svg
     size: 0.11
@@ -41,7 +41,7 @@ presets:
   castle:
     url: castle.svg
     size: 0.09
-    yOffset: -5
+    yOffset: 40
   ship:
     url: ship.svg
     size: 0.05
