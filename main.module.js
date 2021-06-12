@@ -16,17 +16,25 @@ let PARAMS = {
   seed: 0,
   colorSeed: 0,
   randomizeSeed: false,
+  rangeTest: {min: 0, max: 1},
 }
 
 let mt;
 
 // CDN
 const pane = new Tweakpane.Pane();
+pane.registerPlugin(TweakpaneIntervalPlugin);
 pane.addInput(PARAMS, "seed", {step: 1});
 pane.addInput(PARAMS, "colorSeed", {step: 1});
 pane.addInput(PARAMS, "randomizeSeed");
+pane.addInput(PARAMS, "rangeTest", {min: 0, max: 1});
 
-pane.registerPlugin(TweakpaneIntervalPlugin);
+pane.on('change', (ev) => {
+  if (initialized) {
+    savePanel();
+    // window.location = "";
+  }
+});
 let initialized = false;
 
 let renderer, stats, scene, camera, gui, guiData;
@@ -125,6 +133,8 @@ let baseRandom;
 
 let panelFolders = {};
 let panelFolderParams = {};
+
+let intervalParams = {};
 panelFolders[""] = pane;
 
 function findSliderReferencesInChildren(rule) {
@@ -156,11 +166,34 @@ function findSliderReferencesInChildren(rule) {
       }
 
       let sliderName = foldersValue[foldersValue.length - 1];
+      let presetKey = cumulativeFolderName + "/" + sliderName;
+      if (args[1] == null) {
+        panelFolderParams[cumulativeFolderName][sliderName] = args[0] || 0;
+        panelFolders[cumulativeFolderName].addInput(panelFolderParams[cumulativeFolderName], sliderName, {
+          presetKey: presetKey
+        });
+      }
+      else {
 
-      panelFolderParams[cumulativeFolderName][sliderName] = args[0] || 0;
-      panelFolders[cumulativeFolderName].addInput(panelFolderParams[cumulativeFolderName], sliderName, {
-        presetKey: cumulativeFolderName + "/" + sliderName
-      });
+        if (_.startsWith(args[1], "range")) {
+          
+          if (!(cumulativeFolderName in intervalParams)) intervalParams[cumulativeFolderName] = {};
+          if (!(sliderName in intervalParams[cumulativeFolderName])) intervalParams[cumulativeFolderName][sliderName] = {};
+          
+
+          intervalParams[cumulativeFolderName][sliderName][args[1].slice(5)] = args[0] ? parseFloat(args[0]) : 0;
+
+          if ("min" in intervalParams[cumulativeFolderName][sliderName] && "max" in intervalParams[cumulativeFolderName][sliderName]) {
+            
+            let params = intervalParams[cumulativeFolderName];
+            let folder = panelFolders[cumulativeFolderName];
+            folder.addInput(params, sliderName, {
+                  min: 0,
+                  max: 1
+                });
+          }
+        }
+      }
 
     } else if (isNaN(ruleValue)) {
       findSliderReferencesInChildren(rule[key]);
@@ -259,18 +292,27 @@ function newDimensions() {
   };
 }
 
-function getNumericalOrReadSlider(value) {
-  if (typeof value === "string") {
+function getNumericalOrReadSlider(ruleValue) {
+  if (typeof ruleValue === "string") {
+    console.log(ruleValue);
+    if (ruleValue[0] == "$") {
+      let [value, ...args] = ruleValue.split(" ");
+      value = value.slice(1); // cut off the dollar sign
 
-    if (value[0] == "$") {
-      value = _.first(value.split(" ")).slice(1);
 
       let sliderName = _.last(value.split("/"));
       let folderName = value.slice(0, value.length - (1 + sliderName.length));
+      console.log("param");
+      console.log(args);
+      if (_.startsWith(args[1], "range")) {
+        console.log("param " + intervalParams[folderName][sliderName][args[1].slice(5)]);
+        return intervalParams[folderName][sliderName][args[1].slice(5)];
+      }
+
       return panelFolderParams[folderName][sliderName];
     }
   }
-  return value;
+  return ruleValue;
 }
 
 function checkAndApplyPreset(obj) {
@@ -327,6 +369,7 @@ function processRule(rule, currentDimensions) {
             size = getNumericalOrReadSlider(spawn["size"]);
           if ("sizeRange" in spawn)
             size += spawnRandom() * getNumericalOrReadSlider(spawn["sizeRange"]);
+          spawnedObj.scale.x = spawnRandom() > .5 ? 1 : -1;
           spawnedObj.scale.multiplyScalar(size);
           let xRange = 0;
           let yRange = 0;
@@ -377,65 +420,58 @@ function processRule(rule, currentDimensions) {
         if ("probability" in replace && baseRandom() > replace["probability"]) continue;
         let newDimensions = Object.assign({}, currentDimensions);
 
-        function tryReplaceThenReturnIfNumerical(dir) {
-          if (dir in replace) {
-            if ((typeof replace[dir] === 'string' || replace[dir] instanceof String)) {
-              if (replace[dir].startsWith("previous_")) {
-                newDimensions[dir] = lastDimensions[replace[dir].split("_")[1]];
-              }
-              return false;
-            }
-            return true;
-          }
-          return false;
-        }
-        if (tryReplaceThenReturnIfNumerical("left")) {
+        if (replace.id == "feature") {
+          console.log("feature state");
+          console.log(replace);
+        } 
+
+        if ("left" in replace) {
           newDimensions.left =
-            (currentDimensions.right - currentDimensions.left) * replace.left + currentDimensions.left;
+            (currentDimensions.right - currentDimensions.left) * getNumericalOrReadSlider(replace.left) + currentDimensions.left;
         }
-        if (tryReplaceThenReturnIfNumerical("right")) {
+        if ("right" in replace) {
           newDimensions.right =
-            (currentDimensions.right - currentDimensions.left) * replace.right + currentDimensions.left;
+            (currentDimensions.right - currentDimensions.left) * getNumericalOrReadSlider(replace.right) + currentDimensions.left;
         }
-        if (tryReplaceThenReturnIfNumerical("randWidth")) {
-          newDimensions.left += baseRandom() * (newDimensions.right - newDimensions.left) * (1 - replace.randWidth);
-          newDimensions.right = newDimensions.left + (newDimensions.right - newDimensions.left) * replace.randWidth;
+        if ("randWidth" in replace) {
+          newDimensions.left += baseRandom() * (newDimensions.right - newDimensions.left) * (1 - getNumericalOrReadSlider(replace.randWidth));
+          newDimensions.right = newDimensions.left + (newDimensions.right - newDimensions.left) * getNumericalOrReadSlider(replace.randWidth);
         }
-        if (tryReplaceThenReturnIfNumerical("bottom")) {
+        if ("bottom" in replace) {
           newDimensions.bottom =
-            (currentDimensions.top - currentDimensions.bottom) * replace.bottom + currentDimensions.bottom;
+            (currentDimensions.top - currentDimensions.bottom) * getNumericalOrReadSlider(replace.bottom) + currentDimensions.bottom;
         }
-        if (tryReplaceThenReturnIfNumerical("top")) {
+        if ("top" in replace) {
           newDimensions.top =
-            (currentDimensions.top - currentDimensions.bottom) * replace.top + currentDimensions.bottom;
+            (currentDimensions.top - currentDimensions.bottom) * getNumericalOrReadSlider(replace.top) + currentDimensions.bottom;
         }
-        if (tryReplaceThenReturnIfNumerical("randHeight")) {
-          newDimensions.bottom += baseRandom() * (newDimensions.top - newDimensions.bottom) * (1 - replace.randHeight);
-          newDimensions.top = newDimensions.bottom + (newDimensions.top - newDimensions.bottom) * replace.randHeight;
+        if ("randHeight" in replace) {
+          newDimensions.bottom += baseRandom() * (newDimensions.top - newDimensions.bottom) * (1 - getNumericalOrReadSlider(replace.randHeight));
+          newDimensions.top = newDimensions.bottom + (newDimensions.top - newDimensions.bottom) * getNumericalOrReadSlider(replace.randHeight);
         }
-        if (tryReplaceThenReturnIfNumerical("back")) {
+        if ("back" in replace) {
           newDimensions.back =
-            (currentDimensions.front - currentDimensions.back) * replace.back + currentDimensions.back;
+            (currentDimensions.front - currentDimensions.back) * getNumericalOrReadSlider(replace.back) + currentDimensions.back;
         }
-        if (tryReplaceThenReturnIfNumerical("front")) {
+        if ("front" in replace) {
           newDimensions.front =
-            (currentDimensions.front - currentDimensions.back) * replace.front + currentDimensions.back;
+            (currentDimensions.front - currentDimensions.back) * getNumericalOrReadSlider(replace.front) + currentDimensions.back;
         }
-        if (tryReplaceThenReturnIfNumerical("randDepth")) {
-          newDimensions.back += baseRandom() * (newDimensions.front - newDimensions.back) * (1 - replace.randDepth);
-          newDimensions.front = newDimensions.back + (newDimensions.front - newDimensions.back) * replace.randDepth;
+        if ("randDepth" in replace) {
+          newDimensions.back += baseRandom() * (newDimensions.front - newDimensions.back) * (1 - getNumericalOrReadSlider(replace.randDepth));
+          newDimensions.front = newDimensions.back + (newDimensions.front - newDimensions.back) * getNumericalOrReadSlider(replace.randDepth);
         }
-        if (tryReplaceThenReturnIfNumerical("hueShift")) {
-          newDimensions.hueShift += replace.hueShift;
+        if ("hueShift" in replace) {
+          newDimensions.hueShift += getNumericalOrReadSlider(replace.hueShift);
         }
-        if (tryReplaceThenReturnIfNumerical("hueShiftChance")) {
-          newDimensions.hueShift += baseRandom() > replace.hueShiftChance ? 1 : 0;
+        if ("hueShiftChance" in replace) {
+          newDimensions.hueShift += baseRandom() > getNumericalOrReadSlider(replace.hueShiftChance) ? 1 : 0;
         }
-        if (tryReplaceThenReturnIfNumerical("saturation")) {
-          newDimensions.saturation += replace.saturation;
+        if ("saturation" in replace) {
+          newDimensions.saturation += getNumericalOrReadSlider(replace.saturation);
         }
-        if (tryReplaceThenReturnIfNumerical("brightness")) {
-          newDimensions.brightness += replace.brightness;
+        if ("brightness" in replace) {
+          newDimensions.brightness += getNumericalOrReadSlider(replace.brightness);
         }
         processRule(rules[replace.id], newDimensions);
         lastDimensions = newDimensions;
@@ -459,8 +495,12 @@ function onWindowResize() {
 
 }
 
+function savePanel() {
+  localStorage.setItem("panelString", JSON.stringify(pane.exportPreset()));
+}
+
 function animate() {
-  if (initialized) localStorage.setItem("panelString", JSON.stringify(pane.exportPreset()));
+  if (initialized) savePanel();
 
 
   requestAnimationFrame(animate);

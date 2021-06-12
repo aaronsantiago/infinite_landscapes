@@ -105,8 +105,8 @@ rules:
       randDepth: .4
     - id: feature
       hueShift: 2
-      left: 0
-      right: 1
+      left: $feature/x 0 rangemin
+      right: $feature/x 1 rangemax
       bottom: 0
       front: .8
       back: -.2
