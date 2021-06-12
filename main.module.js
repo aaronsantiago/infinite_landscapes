@@ -16,18 +16,21 @@ let PARAMS = {
   seed: 0,
   colorSeed: 0,
   randomizeSeed: false,
-  rangeTest: {min: 0, max: 1},
 }
 
 let mt;
 
 // CDN
-const pane = new Tweakpane.Pane();
-pane.registerPlugin(TweakpaneIntervalPlugin);
+const universePane = new Tweakpane.Pane();
+universePane.registerPlugin(TweakpaneIntervalPlugin);
+
+let pane = universePane.addFolder({
+    title: "toggle panel"
+  })
+
 pane.addInput(PARAMS, "seed", {step: 1});
 pane.addInput(PARAMS, "colorSeed", {step: 1});
 pane.addInput(PARAMS, "randomizeSeed");
-pane.addInput(PARAMS, "rangeTest", {min: 0, max: 1});
 
 pane.on('change', (ev) => {
   if (initialized) {
@@ -183,13 +186,16 @@ function findSliderReferencesInChildren(rule) {
 
           intervalParams[cumulativeFolderName][sliderName][args[1].slice(5)] = args[0] ? parseFloat(args[0]) : 0;
 
-          if ("min" in intervalParams[cumulativeFolderName][sliderName] && "max" in intervalParams[cumulativeFolderName][sliderName]) {
-            
+          if (!("added" in intervalParams[cumulativeFolderName][sliderName])
+              && "min" in intervalParams[cumulativeFolderName][sliderName]
+              && "max" in intervalParams[cumulativeFolderName][sliderName]) {
+            intervalParams[cumulativeFolderName][sliderName].added = true;
             let params = intervalParams[cumulativeFolderName];
             let folder = panelFolders[cumulativeFolderName];
             folder.addInput(params, sliderName, {
-                  min: 0,
-                  max: 1
+                  presetKey: presetKey,
+                  min: -1,
+                  max: 2
                 });
           }
         }
@@ -229,7 +235,7 @@ function loadAll(rules) {
 
   if ("panelString" in localStorage) {
     console.log("loading panel string");
-    pane.importPreset(JSON.parse(localStorage.getItem("panelString")));
+    universePane.importPreset(JSON.parse(localStorage.getItem("panelString")));
   }
 
   if (PARAMS.randomizeSeed) {
@@ -496,7 +502,7 @@ function onWindowResize() {
 }
 
 function savePanel() {
-  localStorage.setItem("panelString", JSON.stringify(pane.exportPreset()));
+  localStorage.setItem("panelString", JSON.stringify(universePane.exportPreset()));
 }
 
 function animate() {

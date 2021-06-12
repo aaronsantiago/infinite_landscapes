@@ -7,3 +7,22 @@ body {
 	line-height: 24px;
 	overscroll-behavior: none;
 }
+
+/*numerical input section*/
+.tp-rsltxtv_t {
+    flex: .5 !important;
+}
+
+/*value section (everything that's not the name)*/
+.tp-lblv_v {
+    flex-grow: 2 !important;
+}
+
+/*main panel*/
+.tp-dfwv {
+    width: 456px !important;
+    max-height: 95vh;
+	overflow: auto;
+	padding-right: 10px;
+	background: white;
+}
