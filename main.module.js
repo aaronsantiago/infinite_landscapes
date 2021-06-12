@@ -15,32 +15,45 @@ import * as yaml from './libs/yaml.module.js';
 let PARAMS = {
   seed: 0,
   colorSeed: 0,
-  randomizeSeed: false,
 }
 
-let mt;
+let mt, mt2;
 
 // CDN
 const universePane = new Tweakpane.Pane();
 universePane.registerPlugin(TweakpaneIntervalPlugin);
 
+const btn = universePane.addButton({
+  title: 'Reroll scene',
+  label: 'randomizes seed',   // optional
+});
+
+btn.on('click', () => {
+  randomizeSeed();
+  universePane.refresh();
+  redrawScene();
+});
+
 let pane = universePane.addFolder({
     title: "toggle panel"
-  })
+  });
+
+  
 
 pane.addInput(PARAMS, "seed", {step: 1});
 pane.addInput(PARAMS, "colorSeed", {step: 1});
-pane.addInput(PARAMS, "randomizeSeed");
 
 pane.on('change', (ev) => {
   if (initialized) {
     savePanel();
+    resetColors();
+    redrawScene();
     // window.location = "";
   }
 });
 let initialized = false;
 
-let renderer, stats, scene, camera, gui, guiData;
+let renderer, stats, scene, camera, gui, guiData, sceneContainer;
 let loaded = false;
 let jsonLoaded = false;
 let rules = {};
@@ -59,11 +72,14 @@ animate();
 
 function init() {
 
-  const container = document.getElementById('container');
+  const domContainer = document.getElementById('container');
 
   //
 
   scene = new THREE.Scene();
+  sceneContainer = new THREE.Object3D();
+  scene.add(sceneContainer);
+
   // scene.fog = new THREE.Fog(allColors[1], near, far);
   //
 
@@ -84,7 +100,7 @@ function init() {
   });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  container.appendChild(renderer.domElement);
+  domContainer.appendChild(renderer.domElement);
 
   window.addEventListener('resize', onWindowResize);
 
@@ -207,6 +223,11 @@ function findSliderReferencesInChildren(rule) {
   }
 }
 
+function randomizeSeed() {
+  PARAMS.seed = Math.floor(Math.random() * 100000);
+  PARAMS.colorSeed = Math.floor(Math.random() * 100000);
+}
+
 function loadAll(rules) {
   for (let ruleKey in rules) {
     let rule = rules[ruleKey];
@@ -238,48 +259,14 @@ function loadAll(rules) {
     universePane.importPreset(JSON.parse(localStorage.getItem("panelString")));
   }
 
-  if (PARAMS.randomizeSeed) {
-    PARAMS.seed = Math.floor(Math.random() * 100000);
-    PARAMS.colorSeed = Math.floor(Math.random() * 100000);
-  }
-
   mt = Random.MersenneTwister19937.seed(PARAMS.seed);
   baseRandom = function() {
     return Random.real(0, 1)(mt);
     console.log(mt.uses);
   };
 
-  const mt2 = Random.MersenneTwister19937.seed(PARAMS.colorSeed);
-  let colorRandom = () => Random.real(0, 1)(mt2);
-  // ************ GENERATE PALETTE ***********************
-  // radius determines saturation amount
-  // angle determines hue
-  radius = colorRandom() * 50 + 50;
-  angle = colorRandom() * Math.PI * 2;
-  brightness = colorRandom() * 35 + 45;
+  resetColors();
 
-  oppositeSegments = 6;
-  oppositeSpreadAngle = Math.PI / (1 + colorRandom() * 3);
-  mainPrimary = chromatism.convert({
-    L: brightness,
-    a: Math.cos(angle) * radius,
-    b: Math.sin(angle) * radius
-  }).cssrgb;
-  allColors = [mainPrimary];
-  for (let i = 0; i < oppositeSegments; i++) {
-    allColors.push(chromatism.convert({
-      L: brightness,
-      a: Math.cos(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle) * radius,
-      b: Math.sin(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle) * radius
-    }).cssrgb);
-  }
-  // ****************************************************
-
-  scene.background = new THREE.Color(
-    chromatism.saturation(-50, chromatism.shade(-16 + colorRandom() * 42, mainPrimary).cssrgb).cssrgb);
-  const near = 10;
-  const far = 1200;
-  scene.fog = new THREE.Fog(scene.background, near, far);
 
   initialized = true;
 }
@@ -330,6 +317,55 @@ function checkAndApplyPreset(obj) {
     Object.assign(obj, final);
     console.log(obj);
   }
+}
+
+function resetColors() {
+  mt2 = Random.MersenneTwister19937.seed(PARAMS.colorSeed);
+  let colorRandom = () => Random.real(0, 1)(mt2);
+  // ************ GENERATE PALETTE ***********************
+  // radius determines saturation amount
+  // angle determines hue
+  radius = colorRandom() * 50 + 50;
+  angle = colorRandom() * Math.PI * 2;
+  brightness = colorRandom() * 35 + 45;
+
+  oppositeSegments = 6;
+  oppositeSpreadAngle = Math.PI / (1 + colorRandom() * 3);
+  mainPrimary = chromatism.convert({
+    L: brightness,
+    a: Math.cos(angle) * radius,
+    b: Math.sin(angle) * radius
+  }).cssrgb;
+  allColors = [mainPrimary];
+  for (let i = 0; i < oppositeSegments; i++) {
+    allColors.push(chromatism.convert({
+      L: brightness,
+      a: Math.cos(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle) * radius,
+      b: Math.sin(angle + Math.PI + (i / oppositeSegments - .5) * oppositeSpreadAngle) * radius
+    }).cssrgb);
+  }
+
+
+  scene.background = new THREE.Color(
+    chromatism.saturation(-50, chromatism.shade(-16 + colorRandom() * 42, mainPrimary).cssrgb).cssrgb);
+  const near = 10;
+  const far = 1200;
+  scene.fog = new THREE.Fog(scene.background, near, far);
+}
+
+function redrawScene() {
+
+  resetColors();
+
+  scene.remove(sceneContainer);
+  sceneContainer = new THREE.Object3D();
+  scene.add(sceneContainer);
+
+  mt = Random.MersenneTwister19937.seed(PARAMS.seed);
+  mt2 = Random.MersenneTwister19937.seed(PARAMS.colorSeed);
+
+  let current = newDimensions();
+  processRule(rules[parsedRules["initial"][0]["id"]], current);
 }
 
 function processRule(rule, currentDimensions) {
@@ -404,7 +440,7 @@ function processRule(rule, currentDimensions) {
             spawnedObj.position.y += getNumericalOrReadSlider(spawn["yOffset"]);
           if ("zOffset" in spawn)
             spawnedObj.position.y += getNumericalOrReadSlider(spawn["zOffset"]);
-          scene.add(spawnedObj);
+          sceneContainer.add(spawnedObj);
         } catch (e) {
           console.log(e);
         }
