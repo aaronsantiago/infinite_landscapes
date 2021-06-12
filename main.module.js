@@ -17,21 +17,30 @@ let PARAMS = {
   colorSeed: 0,
 }
 
-let mt, mt2;
+let mt, mt2, box;
 
 // CDN
 const universePane = new Tweakpane.Pane();
 universePane.registerPlugin(TweakpaneIntervalPlugin);
 
-const btn = universePane.addButton({
+const rerollButton = universePane.addButton({
   title: 'Reroll scene',
   label: 'randomizes seed',   // optional
 });
 
-btn.on('click', () => {
+rerollButton.on('click', () => {
   randomizeSeed();
   universePane.refresh();
   redrawScene();
+});
+
+const hideBoxButton = universePane.addButton({
+  title: 'Hide Box'
+});
+
+hideBoxButton.on('click', () => {
+  sceneContainer.remove(box);
+  box = null;
 });
 
 let pane = universePane.addFolder({
@@ -43,8 +52,10 @@ let pane = universePane.addFolder({
 pane.addInput(PARAMS, "seed", {step: 1});
 pane.addInput(PARAMS, "colorSeed", {step: 1});
 
+let drawBoundingBox = "";
 pane.on('change', (ev) => {
   if (initialized) {
+    drawBoundingBox = ev.presetKey;
     savePanel();
     resetColors();
     redrawScene();
@@ -79,6 +90,7 @@ function init() {
   scene = new THREE.Scene();
   sceneContainer = new THREE.Object3D();
   scene.add(sceneContainer);
+  
 
   // scene.fog = new THREE.Fog(allColors[1], near, far);
   //
@@ -262,7 +274,6 @@ function loadAll(rules) {
   mt = Random.MersenneTwister19937.seed(PARAMS.seed);
   baseRandom = function() {
     return Random.real(0, 1)(mt);
-    console.log(mt.uses);
   };
 
   resetColors();
@@ -285,20 +296,17 @@ function newDimensions() {
   };
 }
 
+let shouldDrawBoundingBox = false;
 function getNumericalOrReadSlider(ruleValue) {
   if (typeof ruleValue === "string") {
-    console.log(ruleValue);
     if (ruleValue[0] == "$") {
       let [value, ...args] = ruleValue.split(" ");
       value = value.slice(1); // cut off the dollar sign
-
+      if (value == drawBoundingBox) shouldDrawBoundingBox = true;
 
       let sliderName = _.last(value.split("/"));
       let folderName = value.slice(0, value.length - (1 + sliderName.length));
-      console.log("param");
-      console.log(args);
       if (_.startsWith(args[1], "range")) {
-        console.log("param " + intervalParams[folderName][sliderName][args[1].slice(5)]);
         return intervalParams[folderName][sliderName][args[1].slice(5)];
       }
 
@@ -310,12 +318,10 @@ function getNumericalOrReadSlider(ruleValue) {
 
 function checkAndApplyPreset(obj) {
   let preset = obj["presetId"];
-  console.log(preset);
   if (preset != null && presets[preset] != null) {
     let final = Object.assign({}, presets[preset]);
     Object.assign(final, obj);
     Object.assign(obj, final);
-    console.log(obj);
   }
 }
 
@@ -369,8 +375,6 @@ function redrawScene() {
 }
 
 function processRule(rule, currentDimensions) {
-  console.log("processing rule:");
-  console.log(rule);
   if (rule == null) return;
 
   const mt3 = Random.MersenneTwister19937.seed(mt.next());
@@ -462,11 +466,6 @@ function processRule(rule, currentDimensions) {
         if ("probability" in replace && baseRandom() > replace["probability"]) continue;
         let newDimensions = Object.assign({}, currentDimensions);
 
-        if (replace.id == "feature") {
-          console.log("feature state");
-          console.log(replace);
-        } 
-
         if ("left" in replace) {
           newDimensions.left =
             (currentDimensions.right - currentDimensions.left) * getNumericalOrReadSlider(replace.left) + currentDimensions.left;
@@ -520,6 +519,34 @@ function processRule(rule, currentDimensions) {
       }
     }
   }
+  if (shouldDrawBoundingBox) {
+
+    var geo = new THREE.BoxGeometry( 1, 1, 1 );
+    var wireframe = new THREE.WireframeGeometry( geo );
+
+    var mat = new THREE.LineBasicMaterial( { 
+      
+      color: 0xffffff, 
+      depthTest: true,
+      depthWrite : true,
+      opacity : 0.8,
+      linewidth : 10,
+      linejoin : "miter"
+      
+    } );
+    var boxMesh = new THREE.BoxHelper( new THREE.Mesh(geo, mat) , mat.color );
+    box = new THREE.LineSegments( boxMesh.geometry, mat );
+    let width = (currentDimensions.right - currentDimensions.left);
+    box.scale.x = 200 * width;
+    box.scale.y = 100 * (currentDimensions.top - currentDimensions.bottom);
+    box.scale.z = 500 * (currentDimensions.front - currentDimensions.back);
+    box.position.x = (currentDimensions.left  * 200 - 100) + box.scale.x / 2;
+    box.position.y = (currentDimensions.bottom  * 100 - 50) + box.scale.y /2;
+    box.position.z = (currentDimensions.back * 500 - 650) + box.scale.z / 2;
+    sceneContainer.add( box );
+  }
+
+  shouldDrawBoundingBox = false;
 }
 
 function onWindowResize() {

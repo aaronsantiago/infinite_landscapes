@@ -61,8 +61,8 @@ rules:
       saturation: -42
       brightness: 20
       front: .5
-      bottom: 1
-      top: 1.8
+      bottom: $cloud/y 1 rangemin
+      top: $cloud/y 1.8 rangemax
     - id: cloudZone3
       hueShiftChance: .3
       saturation: -45
