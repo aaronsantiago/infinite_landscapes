@@ -25,4 +25,5 @@ body {
 	overflow: auto;
 	padding-right: 10px;
 	background: white;
+	opacity: .75;
 }
