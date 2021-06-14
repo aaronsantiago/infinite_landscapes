@@ -33,9 +33,74 @@ rerollButton.on('click', () => {
   universePane.refresh();
   redrawScene();
 });
+const exportButton = universePane.addButton({
+  title: 'Export configuration'
+});
 
-const hideBoxButton = universePane.addButton({
-  title: 'Hide Box'
+exportButton.on('click', () => {
+  let d = new Date();
+  let filename = 
+      "InfiniteLandscapesConfig_"
+        + d.toJSON().slice(0,10) + "_"
+        + ("00" + (new Date()).getHours()).slice(-2)
+        + ("00" + (new Date()).getMinutes()).slice(-2) + ".txt";
+  let text = JSON.stringify(universePane.exportPreset());
+
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+});
+
+const importButton = universePane.addButton({
+  title: 'Import configuration'
+});
+
+importButton.on('click', () => {
+  document.getElementById('filePicker').click();
+});
+
+function checkImport() {
+  let filePicker = document.getElementById('filePicker');
+  if (filePicker.files.length > 0) {
+    
+    var fr = new FileReader();
+    
+    fr.onload = function(e) { 
+      console.log(e.target.result);
+      try {
+        universePane.importPreset(JSON.parse(e.target.result));
+      }
+      catch(e) {
+        alert("Something was wrong with the JSON "  + e.name + ': ' + e.message);
+        console.log("problem stringifying JSON");
+        console.log(e);
+      }
+
+    }
+    
+    fr.readAsText(filePicker.files.item(0));
+    filePicker.value = null;
+  }
+  requestAnimationFrame(checkImport);
+}
+requestAnimationFrame(checkImport);
+
+let pane = universePane.addFolder({
+    title: "toggle panel"
+  });
+
+  
+
+
+const hideBoxButton = pane.addButton({
+  title: 'Hide Bounding Boxes'
 });
 
 hideBoxButton.on('click', () => {
@@ -44,12 +109,6 @@ hideBoxButton.on('click', () => {
   resetColors();
   redrawScene();
 });
-
-let pane = universePane.addFolder({
-    title: "toggle panel"
-  });
-
-  
 
 pane.addInput(PARAMS, "seed", {step: 1});
 pane.addInput(PARAMS, "colorSeed", {step: 1});
@@ -201,7 +260,7 @@ function findSliderReferencesInChildren(rule) {
 
       let sliderName = foldersValue[foldersValue.length - 1];
       let presetKey = cumulativeFolderName + "/" + sliderName;
-      if (args[1] == null) {
+      if (args[1] == null && !(sliderName in panelFolderParams[cumulativeFolderName]) ) {
         panelFolderParams[cumulativeFolderName][sliderName] = args[0] || 0;
         panelFolders[cumulativeFolderName].addInput(panelFolderParams[cumulativeFolderName], sliderName, {
           presetKey: presetKey

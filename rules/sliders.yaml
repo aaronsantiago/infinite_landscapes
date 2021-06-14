@@ -97,7 +97,7 @@ rules:
     spawn:
     - presetId: cloud
       count: 3
-      probability: 0.9
+      probability: $cloud/cloudProbability .1
       xRange: 1
       yRange: 0.7
       zRange: 1
@@ -111,13 +111,13 @@ rules:
     spawn:
     - presetId: cloud
       count: 8
-      probability: 0.9
+      probability: $cloud/cloudProbability .1
       xRange: 1
       yRange: 0.7
       zRange: 1
     - presetId: cloud
       count: 8
-      probability: 0.9
+      probability: $cloud/cloudProbability .1
       xRange: 1
       yRange: 0.7
       zRange: 1
@@ -125,13 +125,13 @@ rules:
     spawn:
     - presetId: cloud
       count: 20
-      probability: 0.9
+      probability: $cloud/cloudProbability .1
       xRange: 1
       yRange: 0.7
       zRange: 1
     - presetId: cloud
       count: 20
-      probability: 0.9
+      probability: $cloud/cloudProbability .1
       xRange: 1
       yRange: 0.7
       zRange: 1
